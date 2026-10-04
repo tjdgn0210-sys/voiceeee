@@ -204,16 +204,6 @@
 .sheetCloseText { font-family: var(--font); text-align: right; font-size: calc(15px * var(--fs)); font-weight: 600; color: var(--accent); }
 .sheetBlock { display: flex; flex-direction: column; gap: 10px; }
 
-/* 글씨 크기 3단계: 글자 "가"의 크기가 곧 단계. 눌린 단계가 채워진 원. 터치 영역 48px */
-.sizeControl { display: flex; flex-direction: row; align-items: center; }
-.sizeButton { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 48px; height: 48px; border-width: 0px; border-radius: 24px; background-color: transparent; cursor: pointer; }
-.sizeButtonActive { background-color: var(--primaryFill); }
-.sizeText { font-family: var(--font); text-align: center; font-weight: 600; color: var(--ink); }
-.sizeTextActive { color: var(--onPrimary); }
-.sizeSmall { font-size: 13px; }
-.sizeMedium { font-size: 17px; }
-.sizeLarge { font-size: 22px; }
-
 /* 색 고르기: 동그란 견본 + 마지막 "직접 고르기". 눌린 견본은 테두리가 진해진다. 터치 영역 48px */
 .swatchRow { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; }
 .swatch { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 48px; height: 48px; border-width: 3px; border-style: solid; border-color: transparent; border-radius: 24px; background-color: transparent; cursor: pointer; }
@@ -423,3 +413,164 @@
 .resultRow { display: flex; flex-direction: row; align-items: center; gap: 14px; padding: 14px 0px 14px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--line); }
 .resultMain { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
 .sheetTall { max-height: 820px; }
+
+/* ---------- 1단계: 별명 · 받은 항목 · 수신함 · 보낸 항목 · 친구 추가 ---------- */
+/* 표시 이름 아래에 작게 보이는 실제 닉네임 */
+.nicknameLine { font-family: var(--font); text-align: left; font-size: calc(12px * var(--fs)); line-height: calc(17px * var(--fs)); color: var(--muted); }
+/* 캘린더 항목 아래 "보낸 사람: 이름" */
+.agendaSource { font-family: var(--font); text-align: left; font-size: calc(12px * var(--fs)); line-height: calc(17px * var(--fs)); color: var(--muted); }
+/* 받은 카드의 "항상 이렇게" 체크 줄 (동그라미는 할 일 체크 칸 taskBox 를 같이 쓴다) */
+.checkRow { display: flex; flex-direction: row; align-items: center; gap: 12px; min-height: 44px; padding: 0px; border-width: 0px; background-color: transparent; text-align: left; cursor: pointer; }
+/* 수신함 줄: 위에 내용, 아래에 버튼 */
+.inboxRow { display: flex; flex-direction: column; gap: 10px; padding: 14px 0px 14px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--line); }
+.inboxButtons { display: flex; flex-direction: row; gap: 8px; }
+.rowLast { border-bottom-width: 0px; }
+/* 받지 않기로 한 친구: 눌러도 선택되지 않는 알약 */
+.pillDisabled { background-color: var(--line); cursor: default; }
+.pillTextDisabled { color: var(--muted); font-weight: 400; }
+/* 초대 링크 주소 */
+.linkUrl { font-family: var(--font); text-align: center; font-size: calc(16px * var(--fs)); font-weight: 600; color: var(--ink); }
+/* QR 모양: 스캔되어야 하므로 색 설정과 상관없이 흰 바탕에 검은 점 */
+.qrBox { display: flex; flex-direction: column; align-items: center; align-self: center; padding: 16px; border-radius: 20px; background-color: #FFFFFF; }
+.qrGrid { display: flex; flex-direction: column; }
+.qrRow { display: flex; flex-direction: row; }
+.qrCell { width: 7px; height: 7px; background-color: #FFFFFF; }
+.qrCellOn { background-color: #000000; }
+
+/* ---------- 2단계: 알림 미리보기 · 수정됨 · 알림 꺼짐 ---------- */
+.previewRow { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px 10px 14px; border-radius: 14px; background-color: var(--inputFill); }
+.tagEdited { align-self: flex-start; background-color: var(--primaryFill); }
+.agendaWarn { font-family: var(--font); text-align: left; font-size: calc(12px * var(--fs)); line-height: calc(17px * var(--fs)); color: var(--danger); }
+
+/* ---------- 3단계(1): 첫 실행 · 로그인 · 프로필 사진 · 차단 · 신고 ---------- */
+/* 안내 상자 안에서 글자와 버튼을 한 줄로 */
+.noticeLine { align-items: center; gap: 12px; }
+/* 공개 / 비공개 고르는 큰 카드. 고른 쪽은 테두리와 바탕이 바뀐다 */
+.choiceCard { display: flex; flex-direction: column; gap: 6px; padding: 18px 18px 16px 18px; border-width: 2px; border-style: solid; border-color: var(--line); border-radius: 20px; background-color: transparent; text-align: left; cursor: pointer; }
+.choiceCardActive { border-color: var(--primaryFill); background-color: var(--reviewFill); }
+/* 누르는 동작이 없는 설정 줄 */
+.settingRowStatic { cursor: default; }
+.personHead { gap: 12px; align-items: center; }
+/* 큰 이니셜 아바타 (프로필 사진 시트) */
+.avatarBig { width: 96px; height: 96px; border-radius: 48px; }
+.avatarTextBig { font-size: calc(40px * var(--fs)); }
+.photoCurrent { display: flex; flex-direction: column; align-items: center; }
+/* 사진: 하늘 · 땅 · 해로 그린 예시 그림. 원 안에서 잘려 보인다 */
+.photoFrame { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+.photoScene { display: flex; flex: none; flex-direction: column; width: 360px; height: 300px; }
+.photoSky { display: flex; flex: 3; flex-direction: column; padding: 40px 50px 0px 50px; }
+.photoSunRow { display: flex; flex-direction: row; justify-content: flex-end; }
+.photoSun { width: 70px; height: 70px; border-radius: 35px; }
+.photoGround { flex: 2; }
+.photoTiles { gap: 12px; }
+.photoTile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; border-width: 0px; border-radius: 16px; background-color: var(--inputFill); cursor: pointer; }
+/* 크롭 창: 원형 가이드, 끌어서 위치를 맞춘다 */
+.cropArea { display: flex; flex-direction: column; align-items: center; }
+.cropStage { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 240px; height: 240px; overflow: hidden; border-width: 3px; border-style: solid; border-color: var(--primaryFill); border-radius: 120px; touch-action: none; cursor: grab; }
+.cropControls { justify-content: space-between; gap: 12px; }
+/* 차단 목록 줄 오른쪽 버튼 */
+.blockedAction { display: flex; flex: none; flex-direction: row; }
+
+/* ---------- 3단계(2): 글자 크기 · 내 데이터 · 백업 · 계정 ---------- */
+/* 글자 크기 화면: 현재 퍼센트, 슬라이더(채움 · 손잡이 · 나머지를 flex 비율로), [−] [+] */
+.fontPercent { font-family: var(--serif); text-align: center; font-size: calc(44px * var(--fs)); font-weight: 500; line-height: calc(52px * var(--fs)); color: var(--ink); }
+.sliderRow { flex-wrap: nowrap; gap: 8px; }
+.stepButton { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 48px; height: 48px; border-width: 1px; border-style: solid; border-color: var(--line); border-radius: 24px; background-color: transparent; cursor: pointer; }
+.stepButtonText { font-family: var(--font); text-align: center; font-size: 24px; font-weight: 600; color: var(--ink); }
+.sliderArea { display: flex; flex: 1; flex-direction: column; justify-content: center; min-width: 0; min-height: 48px; touch-action: none; cursor: pointer; }
+.sliderBar { display: flex; flex-direction: row; align-items: center; height: 28px; }
+.sliderFill { height: 8px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; background-color: var(--accent); }
+.sliderThumb { flex: none; width: 28px; height: 28px; border-width: 3px; border-style: solid; border-color: var(--accent); border-radius: 14px; background-color: var(--primaryFill); }
+.sliderRest { height: 8px; border-top-right-radius: 4px; border-bottom-right-radius: 4px; background-color: var(--line); }
+/* 지우는 동작의 제목은 빨간 글자 */
+.settingTitleDanger { color: var(--danger); }
+.exportDate { flex: 1 1 140px; min-width: 0; }
+/* 길게 눌러서 확인하는 버튼: 글자 선택 · 스크롤이 끼어들지 않게 */
+.holdButton { user-select: none; -webkit-user-select: none; touch-action: none; }
+/* 안내 상자 오른쪽의 글자 버튼도 누르기 쉽게 */
+.noticeLine .linkButton { min-width: 48px; align-items: center; }
+/* 값이 긴 정보 줄(마지막 백업 시각 등): 글자가 커져 자리가 모자라면 값이 아래 줄로 내려간다 */
+.settingRowStatic { flex-wrap: wrap; }
+.settingRowStatic .settingMain { flex: 1 1 140px; min-width: 140px; }
+
+/* ---- 7장: 공개 범위 · 친구 일정 보기 ---- */
+:root { --friend1: #D9552B; --friend2: #1F9E8A; --friend3: #C7961A; }
+.dotRow { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 3px; height: 6px; }
+.friendDot1 { background-color: var(--friend1); }
+.friendDot2 { background-color: var(--friend2); }
+.friendDot3 { background-color: var(--friend3); }
+.legendDot { width: 10px; height: 10px; border-radius: 5px; }
+.overlayLegend { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px 16px; }
+.overlayLegendItem { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+.whoLine { display: flex; flex-direction: row; align-items: center; gap: 6px; }
+.panelSoft { display: flex; flex-direction: column; padding: 4px 18px 4px 18px; border-radius: 20px; background-color: var(--reviewFill); }
+.tagPublic { align-self: flex-start; }
+.tagOverlap { align-self: flex-start; background-color: var(--dangerFill); }
+.agendaMainStatic { cursor: default; }
+.fcalTaskHead { padding-top: 16px; }
+.overlayHead { padding-top: 16px; }
+.vizFriend { display: flex; flex-direction: column; gap: 4px; padding: 14px 0px 10px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--line); }
+.vizFriendLast { border-bottom-width: 0px; }
+.vizFriendHead { gap: 14px; }
+
+/* ---- 지출 화면 ---- */
+.expTotalRow { align-items: baseline; gap: 6px; }
+.expTotal { font-family: var(--serif); text-align: left; font-size: calc(44px * var(--fs)); line-height: calc(52px * var(--fs)); font-weight: 500; letter-spacing: -0.5px; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
+.expUnit { font-family: var(--font); text-align: left; font-size: calc(18px * var(--fs)); color: var(--muted); }
+.catRow { display: flex; flex-direction: column; gap: 8px; }
+.tagExcluded { align-self: flex-start; }
+
+/* 모든 시트의 [닫기]: 글자를 70%로 줄여도 가로 44px 이상 (터치 영역) */
+.sheetClose { min-width: 44px; }
+
+/* 카테고리별 막대: 연한 바탕 위에 강조색 */
+.catMeter { display: flex; flex-direction: row; height: 8px; border-radius: 4px; overflow: hidden; background-color: var(--inputFill); }
+.catFill { height: 8px; background-color: var(--accent); }
+.catRest { height: 8px; }
+
+/* ---- 일정 상세 · 보낸 사람 아바타 ---- */
+.senderLine { display: flex; flex-direction: row; align-items: center; gap: 8px; }
+.avatarMini { width: 28px; height: 28px; border-radius: 14px; flex-shrink: 0; overflow: hidden; }
+.avatarTextMini { font-size: calc(12px * var(--fs)); line-height: 1; }
+.senderRow { align-items: center; gap: 10px; }
+.tagCanceled { align-self: flex-start; background-color: var(--inputFill); }
+
+/* ---- 입력 결과 카드 · 처리 대기 초안 ---- */
+.resultCard { gap: 10px; }
+.draftRow { display: flex; flex-direction: column; gap: 8px; padding: 12px 0px 12px 0px; border-width: 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--line); }
+
+/* ---- 9단계: 보낸 사람 표시 · 목록 상태 ---- */
+.dotStack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.senderMarks { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 2px; height: 16px; }
+.avatarTiny { width: 16px; height: 16px; border-radius: 8px; flex-shrink: 0; overflow: hidden; }
+.avatarTextTiny { font-size: 10px; line-height: 1; }
+.markMore { font-size: 10px; line-height: 1; }
+.skeleton { display: flex; flex-direction: column; gap: 8px; }
+.skelRow { display: flex; flex-direction: column; gap: 8px; padding: 12px 0px 12px 0px; }
+.skelBar { width: 40%; height: 12px; border-radius: 6px; background-color: var(--inputFill); }
+.skelBarWide { width: 70%; }
+.noticeOffline { margin-bottom: 8px; }
+.noticeError { flex-direction: column; align-items: flex-start; gap: 10px; }
+.resultTap { cursor: pointer; }
+.page { padding-bottom: 72px; }
+.tabBar { position: fixed; left: 0px; right: 0px; bottom: 0px; z-index: 9; display: flex; flex-direction: row; width: 100%; max-width: 680px; margin-left: auto; margin-right: auto; background-color: var(--canvas); border-top-width: 1px; border-top-style: solid; border-top-color: var(--line); }
+.tabButton { display: flex; flex: 1; flex-direction: column; align-items: center; justify-content: center; min-height: 56px; padding: 6px 4px 6px 4px; border-width: 0px; background-color: transparent; cursor: pointer; }
+.tabButtonActive { box-shadow: inset 0px 3px 0px 0px var(--ink); background-color: var(--reviewFill); }
+.tabLabelRow { display: flex; flex-direction: row; align-items: center; gap: 4px; }
+.tabLabel { font-family: var(--font); text-align: center; font-size: calc(14px * var(--fs)); font-weight: 500; color: var(--muted); }
+.tabLabelActive { font-weight: 800; color: var(--ink); text-decoration: underline; }
+.tabBadge { font-family: var(--font); min-width: 20px; padding: 1px 6px 1px 6px; border-radius: 999px; background-color: var(--accent); text-align: center; font-size: calc(12px * var(--fs)); font-weight: 700; color: var(--onPrimary); }
+.homeReceived { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 12px 20px 12px 20px; border-width: 0px; border-radius: 20px; background-color: var(--reviewFill); cursor: pointer; }
+.segmentButtonActive, .pillActive, .dayCellActive, .monthCellActive { box-shadow: inset 0px 0px 0px 2px var(--ink); }
+.choiceCardActive { box-shadow: inset 0px 0px 0px 2px var(--ink); }
+
+/* ---------- 14단계: 빨간 위험 버튼 · 되돌리기 바 · 친구별 알림 ---------- */
+.buttonDanger { background-color: var(--danger); }
+.buttonTextDanger { color: #FFFFFF; }
+.secondaryDanger { border-color: var(--danger); }
+.secondaryTextDanger { color: var(--danger); }
+.undoToast { position: fixed; left: 16px; right: 16px; bottom: 88px; z-index: 19; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; max-width: 648px; margin-left: auto; margin-right: auto; padding: 4px 8px 4px 18px; border-radius: 16px; background-color: var(--ink); pointer-events: none; }
+.undoToastText { flex: 1; min-width: 0; font-family: var(--font); text-align: left; font-size: calc(14px * var(--fs)); line-height: calc(20px * var(--fs)); color: var(--canvas); }
+.undoToastButton { display: flex; flex-direction: column; justify-content: center; min-height: 44px; padding: 0px 12px 0px 12px; border-width: 0px; background-color: transparent; cursor: pointer; pointer-events: auto; }
+.undoToastButtonText { font-family: var(--font); text-align: center; font-size: calc(14px * var(--fs)); font-weight: 700; color: var(--primaryFill); }
+.friendNotifRow { display: flex; flex-direction: column; gap: 8px; padding: 12px 0px 12px 0px; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: var(--line); }
