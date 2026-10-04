@@ -10,6 +10,8 @@ export interface TransactionRepository {
   create(entity: Transaction): Promise<void>;
   findById(id: EntityId): Promise<Transaction | null>;
   listRecent(limit: number): Promise<Transaction[]>;
+  /** Every live transaction of any type, oldest first (export). */
+  listAll(): Promise<Transaction[]>;
   update(entity: Transaction): Promise<boolean>;
   softDelete(id: EntityId, deletedAt: ISODateTime): Promise<boolean>;
 }

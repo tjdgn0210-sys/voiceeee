@@ -75,6 +75,11 @@ export function createSqliteTransactionRepository(database: ApplicationDatabase)
       );
       return rows.map(fromRow);
     },
+    async listAll() {
+      const rows = await database.getAllAsync<TransactionRow>(
+        "SELECT id, type, amount, currency_code, category, memo, include_in_total, bundle_items, occurred_at, input_method, raw_input, created_at, updated_at, deleted_at FROM transactions WHERE deleted_at IS NULL ORDER BY occurred_at ASC, id ASC");
+      return rows.map(fromRow);
+    },
     async listExpenses(limit) {
       assertQueryLimit(limit);
       const rows = await database.getAllAsync<TransactionRow>(

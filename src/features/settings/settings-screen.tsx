@@ -32,6 +32,12 @@ export function SettingsScreen() {
           </Pressable>
         </View>
         <View style={styles.card}>
+          <Text style={styles.heading} accessibilityRole="header">내 데이터</Text>
+          <Pressable accessibilityRole="button" onPress={() => router.push('/export')} style={styles.secondary}>
+            <Text style={styles.secondaryText}>엑셀로 내보내기</Text>
+          </Pressable>
+        </View>
+        <View style={styles.card}>
           <Text style={styles.heading} accessibilityRole="header">AI</Text>
           <Pressable accessibilityRole="button" onPress={() => router.push('/ai-settings')} style={styles.secondary}>
             <Text style={styles.secondaryText}>AI 연결 설정</Text>

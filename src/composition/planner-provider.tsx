@@ -2,6 +2,7 @@ import { useEffect, useState, type PropsWithChildren } from 'react';
 import { Button, Text, View } from 'react-native';
 import { createUndoBar } from '../application/undo/undo-bar';
 import { PlannerContext } from '../features/calendar/planner-context';
+import { ExportContext } from '../features/settings/export-context';
 import { UndoBarContext } from '../hooks/use-undo-bar';
 import { NotificationProvider } from './notification-provider';
 import { initializePlannerServices, type PlannerComposition } from './planner-services';
@@ -25,7 +26,9 @@ export function PlannerProvider({ children }: PropsWithChildren) {
   if (services) {
     return <UndoBarContext.Provider value={undoBar}>
       <PlannerContext.Provider value={services.planner}>
-        <NotificationProvider adapter={services.notificationAdapter} reminderSync={services.reminderSync}>{children}</NotificationProvider>
+        <ExportContext.Provider value={services.exportService}>
+          <NotificationProvider adapter={services.notificationAdapter} reminderSync={services.reminderSync}>{children}</NotificationProvider>
+        </ExportContext.Provider>
       </PlannerContext.Provider>
     </UndoBarContext.Provider>;
   }

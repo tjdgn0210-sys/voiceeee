@@ -1,5 +1,7 @@
 import { randomUUID } from 'expo-crypto';
+import { createExpoExportSink } from '../adapters/export/expo-file-sharing';
 import { createExpoNotificationAdapter } from '../adapters/notifications/expo-notifications-adapter';
+import { createExportService, type ExportService } from '../application/export/export-service';
 import type { NotificationAdapter } from '../application/notifications/notification-adapter';
 import { createReminderSync, type ReminderSync } from '../application/notifications/reminder-sync';
 import { createPlannerServices, type PlannerServices } from '../application/planner/planner-services';
@@ -9,6 +11,7 @@ import type { UndoBar } from '../application/undo/undo-bar';
 import { getDatabase } from '../database/database';
 import { createSqliteEventRepository } from '../database/repositories/sqlite-event-repository';
 import { createSqliteReminderRepository } from '../database/repositories/sqlite-reminder-repository';
+import { createSqliteTransactionRepository } from '../database/repositories/sqlite-transaction-repository';
 import { createSqliteSettingsRepository } from '../database/repositories/sqlite-settings-repository';
 import { createSqliteTaskRepository } from '../database/repositories/sqlite-task-repository';
 import { createSqlitePlannerUnitOfWork } from '../database/sqlite-planner-unit-of-work';
@@ -20,6 +23,7 @@ export interface PlannerComposition {
   planner: PlannerServices;
   reminderSync: ReminderSync;
   notificationAdapter: NotificationAdapter;
+  exportService: ExportService;
 }
 
 export async function initializePlannerServices(undoBar: UndoBar): Promise<PlannerComposition> {
@@ -42,5 +46,8 @@ export async function initializePlannerServices(undoBar: UndoBar): Promise<Plann
     undoBar,
     afterMutation: async () => (await reminderSync.sync()).warnings,
   });
-  return { planner, reminderSync, notificationAdapter };
+  const exportService = createExportService({
+    transactions: createSqliteTransactionRepository(database), events, reminders, sink: createExpoExportSink(), now, timezone: deviceTimeZone,
+  });
+  return { planner, reminderSync, notificationAdapter, exportService };
 }

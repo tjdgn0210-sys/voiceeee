@@ -15,6 +15,7 @@ export function RootStack() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: '설정' }} />
         <Stack.Screen name="font-size" options={{ title: '글자 크기' }} />
+        <Stack.Screen name="export" options={{ title: '엑셀로 내보내기' }} />
         <Stack.Screen name="ai-settings" options={{ title: 'AI 연결 설정' }} />
         <Stack.Screen name="expense" options={{ title: '지출 상세' }} />
         <Stack.Screen name="manual-expense" options={{ title: '지출 직접 입력' }} />
