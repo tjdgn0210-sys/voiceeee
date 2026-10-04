@@ -66,5 +66,12 @@ export function createSqliteTaskRepository(database: ApplicationDatabase): TaskR
       );
       return result.changes > 0;
     },
+    async restore(id, expectedDeletedAt, restoredAt) {
+      const result = await database.runAsync(
+        'UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ? AND deleted_at = ?',
+        restoredAt, id, expectedDeletedAt,
+      );
+      return result.changes > 0;
+    },
   };
 }

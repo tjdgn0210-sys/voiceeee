@@ -20,6 +20,7 @@ const actionTypes = {
   CREATE_EVENT: true, UPDATE_EVENT: true, COMPLETE_EVENT: true, DELETE_EVENT: true,
   CREATE_NOTE: true, UPDATE_NOTE: true, DELETE_NOTE: true,
   CREATE_REMINDER: true, UPDATE_REMINDER: true, CANCEL_REMINDER: true,
+  UNDO_ACTION: true,
 } satisfies Record<ActionType, true>;
 
 function isObject(value: unknown): value is Record<string, unknown> {

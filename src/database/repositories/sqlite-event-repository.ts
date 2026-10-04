@@ -83,5 +83,12 @@ export function createSqliteEventRepository(database: ApplicationDatabase): Even
       );
       return result.changes > 0;
     },
+    async restore(id, expectedDeletedAt, restoredAt) {
+      const result = await database.runAsync(
+        'UPDATE events SET deleted_at = NULL, updated_at = ? WHERE id = ? AND deleted_at = ?',
+        restoredAt, id, expectedDeletedAt,
+      );
+      return result.changes > 0;
+    },
   };
 }

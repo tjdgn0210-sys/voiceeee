@@ -17,4 +17,6 @@ export type ActionType =
   | 'DELETE_NOTE'
   | 'CREATE_REMINDER'
   | 'UPDATE_REMINDER'
-  | 'CANCEL_REMINDER';
+  | 'CANCEL_REMINDER'
+  /** Reversal of a recent reversible action, linked through undoOf. */
+  | 'UNDO_ACTION';

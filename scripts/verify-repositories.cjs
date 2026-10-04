@@ -112,6 +112,14 @@ async function main() {
     await assert.rejects(tasks.create({ ...task, id:'bad-visibility', visibility:'FRIENDS' }));
     console.log('PASS: task visibility round-trip, update and invalid value rejection.');
 
+    const deletedTaskAt = db.prepare("SELECT deleted_at FROM tasks WHERE id='later'").get().deleted_at;
+    assert.equal(await tasks.restore('later', early, later), false);
+    assert.equal(await tasks.restore('public-task', deletedTaskAt, later), false);
+    assert.equal(await tasks.restore('later', deletedTaskAt, '2026-09-28T03:00:00.000Z'), true);
+    assert.deepEqual({ ...(await tasks.findById('later')), }, { ...task, id:'later', dueAt:later, updatedAt:'2026-09-28T03:00:00.000Z' });
+    assert.equal(await tasks.restore('later', deletedTaskAt, later), false);
+    console.log('PASS: task restore only when deletedAt matches; live rows are not restored twice.');
+
     const event = { ...common, id:'exact', title:'Meeting', kind:'EXACT', startAt:early, fuzzyTime:null, date:null, endAt:later, timezone:'Asia/Seoul', location:null, status:'UPCOMING', visibility:'PRIVATE', sourceActionId:'a-event' };
     const fuzzy = { ...event, id:'fuzzy', kind:'FUZZY', startAt:null, fuzzyTime:'저녁쯤', endAt:null };
     const events = repo.event;
@@ -137,6 +145,13 @@ async function main() {
     assert.equal(await events.findById('exact'), null);
     assert.deepEqual(ids(await events.listUpcoming()), ['fuzzy']);
     console.log('PASS: EXACT/FUZZY round-trips, explicit-status query, full updates, corrupt shape rejection and soft deletion.');
+
+    assert.equal(await events.restore('exact', early, later), false);
+    assert.equal(await events.restore('fuzzy', later, later), false);
+    assert.equal(await events.restore('exact', later, '2026-09-28T03:00:00.000Z'), true);
+    assert.equal((await events.findById('exact')).updatedAt, '2026-09-28T03:00:00.000Z');
+    assert.equal(await events.softDelete('exact', later), true);
+    console.log('PASS: event restore only when deletedAt matches; non-deleted rows unchanged.');
 
     const allDay = { ...event, id:'all-day', kind:'ALL_DAY', startAt:null, fuzzyTime:null, date:'2026-10-03', endAt:null, visibility:'PUBLIC' };
     const datedFuzzy = { ...fuzzy, id:'dated-fuzzy', date:'2026-10-03' };
