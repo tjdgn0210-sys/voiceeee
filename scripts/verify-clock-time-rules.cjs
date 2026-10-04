@@ -48,7 +48,7 @@ test('vector file is well formed and its local labels match the UTC values', () 
     assert.equal(Date.parse(vector.input.nowLocal), Date.parse(vector.input.now), `${vector.id} now/nowLocal`);
     if (vector.expect.status === 'OK') assert.equal(Date.parse(vector.expect.atLocal), Date.parse(vector.expect.at), `${vector.id} at/atLocal`);
   }
-  for (const group of ['blueprint', 'midnight', 'boundary', 'timezone']) {
+  for (const group of ['blueprint', 'midnight', 'boundary', 'timezone', 'supplement']) {
     assert(vectors.some(vector => vector.group === group), `group ${group} is present`);
   }
 });

@@ -3,7 +3,7 @@
   "purpose": "M1-03 시간 해석 규칙의 시험 벡터. 앱(src/application/proposals/clock-time-rules.ts)과 M3 서버 게이트웨이가 같은 값으로 같은 결과를 내는지 확인하는 데 쓴다.",
   "input": "now(UTC ISO), timeZone, dayOffset(0=오늘), hour, minute, meridiem(AM|PM|null), confirmedNextDay, kind(EVENT|EXPENSE). nowLocal은 읽기용 표기이며 now와 같은 시각이다.",
   "expect": "status OK이면 at(UTC ISO)와 autoMeridiem, 아니면 ASK_MERIDIEM | ASK_TOMORROW | ASK_YESTERDAY. atLocal은 읽기용 표기이며 at과 같은 시각이다.",
-  "rules": "vectors의 모든 항목을 시험한다. pendingApproval은 앱 소유자가 승인하기 전이므로 시험에 쓰지 않는다. 승인되면 vectors로 옮긴다.",
+  "rules": "vectors의 모든 항목을 시험한다.",
   "vectors": [
     {
       "id": "bp-01",
@@ -636,13 +636,11 @@
         "atLocal": "2026-11-01T19:00:00-05:00",
         "autoMeridiem": true
       }
-    }
-  ],
-  "pendingApproval": [
+    },
     {
       "id": "sup-01",
-      "group": "pending-approval",
-      "source": "README 보강 행(앱 소유자 승인 전)",
+      "group": "supplement",
+      "source": "README 보강 행(앱 소유자 승인 2026-10-04)",
       "sentence": "12시에 약속",
       "input": {
         "now": "2026-10-03T04:00:00.000Z",
@@ -661,8 +659,8 @@
     },
     {
       "id": "sup-02",
-      "group": "pending-approval",
-      "source": "README 보강 행(앱 소유자 승인 전)",
+      "group": "supplement",
+      "source": "README 보강 행(앱 소유자 승인 2026-10-04)",
       "sentence": "내일 7시 반",
       "input": {
         "now": "2026-10-03T01:00:00.000Z",
@@ -681,8 +679,8 @@
     },
     {
       "id": "sup-03",
-      "group": "pending-approval",
-      "source": "README 보강 행(앱 소유자 승인 전)",
+      "group": "supplement",
+      "source": "README 보강 행(앱 소유자 승인 2026-10-04)",
       "sentence": "7시에 밥 7000원(오전 6시에 말함)",
       "input": {
         "now": "2026-10-02T21:00:00.000Z",
@@ -697,6 +695,52 @@
       },
       "expect": {
         "status": "ASK_YESTERDAY"
+      }
+    },
+    {
+      "id": "am12-01",
+      "group": "midnight",
+      "source": "오전 12시 = 0시 · 자정과 같게 다음 날 00:00 (앱 소유자 지시 2026-10-04, D-10)",
+      "sentence": "오전 12시에 약속 (오늘)",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 12,
+        "minute": 0,
+        "meridiem": "AM",
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T15:00:00.000Z",
+        "atLocal": "2026-10-04T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "am12-02",
+      "group": "midnight",
+      "source": "오전 12시 = 0시 · 자정과 같게 다음 날 00:00 (앱 소유자 지시 2026-10-04, D-10)",
+      "sentence": "내일 오전 12시 회의",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 12,
+        "minute": 0,
+        "meridiem": "AM",
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-04T15:00:00.000Z",
+        "atLocal": "2026-10-05T00:00:00+09:00",
+        "autoMeridiem": false
       }
     }
   ]

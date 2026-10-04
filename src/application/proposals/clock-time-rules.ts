@@ -86,11 +86,11 @@ export function resolveClockTime(input: ClockTimeInput): ClockTimeResult {
   const instantAt = (dayShift: number, hour24: number) => instantOf(today, dayShift, hour24, minute, timeZone);
   const ok = (utcMs: number, autoMeridiem: boolean): ClockTimeResult => ({ status: 'OK', at: new Date(utcMs).toISOString(), autoMeridiem });
 
-  // 0시 and 자정 are 00:00 of the day after the stated date (D-10). 13-23 are used as spoken.
-  if (hour === 0) return ok(instantAt(dayOffset + 1, 0), false);
+  // 0시, 자정 and 오전 12시 are 00:00 of the day after the stated date (D-10). 13-23 are used as spoken.
+  if (hour === 0 || (hour === 12 && input.meridiem === 'AM')) return ok(instantAt(dayOffset + 1, 0), false);
   if (hour >= 13) return ok(instantAt(dayOffset, hour), false);
-  // A cue wins over every rule below; 오전 12시 is 00:00 of the stated day.
-  if (input.meridiem === 'AM') return ok(instantAt(dayOffset, hour % 12), false);
+  // A cue wins over every rule below.
+  if (input.meridiem === 'AM') return ok(instantAt(dayOffset, hour), false);
   if (input.meridiem === 'PM') return ok(instantAt(dayOffset, (hour % 12) + 12), false);
 
   return input.kind === 'EXPENSE'
