@@ -47,7 +47,7 @@ async function main() {
     sql.exec(initialSchemaSql); sql.exec('PRAGMA user_version=1');
     const port = createSerializedWebDatabase(rawDatabase(sql));
     await migrateDatabase(port); await migrateDatabase(port);
-    assert.equal(sql.prepare('PRAGMA user_version').get().user_version, 2);
+    assert.equal(sql.prepare('PRAGMA user_version').get().user_version, 3);
     let sequence = 0;
     const nextId = () => `00000000-0000-4000-8000-${String(++sequence).padStart(12, '0')}`;
     const now = '2026-09-28T16:00:00.000Z';

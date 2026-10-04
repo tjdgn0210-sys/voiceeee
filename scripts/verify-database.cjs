@@ -57,7 +57,7 @@ function adapter(db) {
 
 const load = createLoader();
 const { migrateDatabase } = load(path.join(root, 'src/database/migrations/migrate.ts'));
-const expectedTables = ['action_logs', 'capture_drafts', 'events', 'notes', 'reminders', 'tasks', 'transactions'];
+const expectedTables = ['action_logs', 'capture_drafts', 'events', 'notes', 'reminders', 'settings', 'tasks', 'transactions'];
 const now = '2026-09-28T00:00:00.000Z';
 
 function insert(db, table, row) {
@@ -120,7 +120,7 @@ async function main() {
     db = new DatabaseSync(filename);
     const api = adapter(db);
     await migrateDatabase(api);
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 2);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 3);
     assert.deepEqual(db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(row => row.name), expectedTables);
     verifyConstraints(db);
     await migrateDatabase(api);
@@ -131,9 +131,9 @@ async function main() {
     assert.equal(db.prepare('SELECT count(*) AS n FROM transactions').get().n, 2);
     console.log('PASS: schema, constraints, six indexes, append-only update protection, repeat startup and data preservation after reopening.');
 
-    db.exec('PRAGMA user_version = 3');
+    db.exec('PRAGMA user_version = 4');
     await assert.rejects(migrateDatabase(adapter(db)), /newer/);
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 3);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 4);
     console.log('PASS: newer schema rejected without reset or downgrade.');
   } finally {
     if (db?.isOpen) db.close();
@@ -182,7 +182,7 @@ async function main() {
   await retry;
   assert.equal(opens, 2);
   assert.equal(getDatabase(), retry);
-  assert.equal(connection.prepare('PRAGMA user_version').get().user_version, 2);
+  assert.equal(connection.prepare('PRAGMA user_version').get().user_version, 3);
   connection.close();
   console.log('PASS: shared initializer promise, failed connection cleanup, explicit retry and successful connection reuse.');
 }

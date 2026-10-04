@@ -192,7 +192,7 @@ async function main() {
     // I/J: original transcript remains raw input; duplicate finals have one save and one transaction.
     assert.equal(saveCalls, 1);
     assert.equal(db.prepare('SELECT count(*) AS count FROM action_logs').get().count, 1);
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 2);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 3);
     assert.equal(db.prepare('SELECT count(*) AS count FROM tasks').get().count, 0);
     const nativeAdapter = fs.readFileSync(path.join(root, 'src/adapters/speech/expo-speech-recognition-adapter.ts'), 'utf8');
     assert.match(nativeAdapter, /requiresOnDeviceRecognition:\s*true/u);

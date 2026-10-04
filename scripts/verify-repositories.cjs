@@ -47,7 +47,7 @@ async function main() {
     for (const [name, entity] of [['transaction','Transaction'],['task','Task'],['event','Event'],['note','Note'],['reminder','Reminder'],['action-log','ActionLog']]) {
       repo[name] = load(`src/database/repositories/sqlite-${name}-repository.ts`)[`createSqlite${entity}Repository`](api);
     }
-    const transaction = { ...common, id:'t1', type:'EXPENSE', amount:8000, currencyCode:'KRW', category:null, memo:"Lunch'; DROP TABLE notes; --", occurredAt:early, inputMethod:'VOICE', rawInput:'점심 8천원' };
+    const transaction = { ...common, id:'t1', type:'EXPENSE', amount:8000, currencyCode:'KRW', category:null, memo:"Lunch'; DROP TABLE notes; --", includeInTotal:true, bundleItems:null, occurredAt:early, inputMethod:'VOICE', rawInput:'점심 8천원' };
     const tr = repo.transaction;
     await tr.create(transaction);
     assert.deepEqual(await tr.findById('t1'), transaction);
@@ -71,7 +71,21 @@ async function main() {
     assert.deepEqual({ ...db.prepare("SELECT deleted_at, updated_at FROM transactions WHERE id='t1'").get() }, {deleted_at:later, updated_at:later});
     console.log('PASS: transactions round-trip, parameter binding, ordering/limits, update, immutable creation time, constraints and soft deletion.');
 
-    const task = { ...common, id:'task1', title:'Task', dueAt:early, status:'OPEN', completedAt:null, sourceActionId:'action1' };
+    const bundled = { ...transaction, id:'t3', memo:'편의점', includeInTotal:false, bundleItems:['아이스크림','생수','밥'] };
+    await tr.create(bundled);
+    assert.deepEqual(await tr.findById('t3'), bundled);
+    assert.deepEqual({ ...db.prepare("SELECT include_in_total, bundle_items FROM transactions WHERE id='t3'").get() }, { include_in_total:0, bundle_items:'["아이스크림","생수","밥"]' });
+    const unbundled = { ...bundled, includeInTotal:true, bundleItems:null, updatedAt:later };
+    assert.equal(await tr.update(unbundled), true);
+    assert.deepEqual(await tr.findById('t3'), unbundled);
+    db.exec('PRAGMA ignore_check_constraints = ON');
+    db.prepare(`UPDATE transactions SET bundle_items='["ok",1]' WHERE id='t3'`).run();
+    db.exec('PRAGMA ignore_check_constraints = OFF');
+    await assert.rejects(tr.findById('t3'), /Invalid persisted Transaction bundle items/);
+    db.prepare("UPDATE transactions SET bundle_items=NULL WHERE id='t3'").run();
+    console.log('PASS: transaction includeInTotal/bundleItems round-trip, update to defaults and corrupt bundle rejection.');
+
+    const task = { ...common, id:'task1', title:'Task', dueAt:early, status:'OPEN', completedAt:null, visibility:'PRIVATE', sourceActionId:'action1' };
     const tasks = repo.task;
     await tasks.create(task);
     assert.deepEqual(await tasks.findById(task.id), task);
@@ -90,7 +104,15 @@ async function main() {
     assert.equal(await tasks.softDelete('missing', later), false);
     console.log('PASS: tasks active-status filtering, dated-first ordering, updates and soft-delete exclusion.');
 
-    const event = { ...common, id:'exact', title:'Meeting', kind:'EXACT', startAt:early, fuzzyTime:null, endAt:later, timezone:'Asia/Seoul', location:null, status:'UPCOMING', sourceActionId:'a-event' };
+    const publicTask = { ...task, id:'public-task', visibility:'PUBLIC' };
+    await tasks.create(publicTask);
+    assert.deepEqual(await tasks.findById('public-task'), publicTask);
+    assert.equal(await tasks.update({ ...publicTask, visibility:'PRIVATE', updatedAt:later }), true);
+    assert.equal((await tasks.findById('public-task')).visibility, 'PRIVATE');
+    await assert.rejects(tasks.create({ ...task, id:'bad-visibility', visibility:'FRIENDS' }));
+    console.log('PASS: task visibility round-trip, update and invalid value rejection.');
+
+    const event = { ...common, id:'exact', title:'Meeting', kind:'EXACT', startAt:early, fuzzyTime:null, date:null, endAt:later, timezone:'Asia/Seoul', location:null, status:'UPCOMING', visibility:'PRIVATE', sourceActionId:'a-event' };
     const fuzzy = { ...event, id:'fuzzy', kind:'FUZZY', startAt:null, fuzzyTime:'저녁쯤', endAt:null };
     const events = repo.event;
     await events.create(event);
@@ -116,6 +138,26 @@ async function main() {
     assert.deepEqual(ids(await events.listUpcoming()), ['fuzzy']);
     console.log('PASS: EXACT/FUZZY round-trips, explicit-status query, full updates, corrupt shape rejection and soft deletion.');
 
+    const allDay = { ...event, id:'all-day', kind:'ALL_DAY', startAt:null, fuzzyTime:null, date:'2026-10-03', endAt:null, visibility:'PUBLIC' };
+    const datedFuzzy = { ...fuzzy, id:'dated-fuzzy', date:'2026-10-03' };
+    await events.create(allDay);
+    await events.create(datedFuzzy);
+    assert.deepEqual(await events.findById('all-day'), allDay);
+    assert.deepEqual(await events.findById('dated-fuzzy'), datedFuzzy);
+    assert.deepEqual(ids(await events.listUpcoming()), ['all-day','dated-fuzzy','fuzzy']);
+    await assert.rejects(events.create({ ...allDay, id:'all-day-end', endAt:later }));
+    await assert.rejects(events.create({ ...allDay, id:'all-day-no-date', date:null }));
+    await assert.rejects(events.create({ ...event, id:'exact-date', date:'2026-10-03' }));
+    const allDayMoved = { ...allDay, date:'2026-10-04', updatedAt:later };
+    assert.equal(await events.update(allDayMoved), true);
+    assert.deepEqual(await events.findById('all-day'), allDayMoved);
+    db.exec('PRAGMA ignore_check_constraints = ON');
+    db.prepare(`UPDATE events SET start_at='${early}' WHERE id='all-day'`).run();
+    db.exec('PRAGMA ignore_check_constraints = OFF');
+    await assert.rejects(events.findById('all-day'), /Invalid persisted Event time shape/);
+    db.prepare("UPDATE events SET start_at=NULL WHERE id='all-day'").run();
+    console.log('PASS: ALL_DAY and dated FUZZY round-trips, visibility, ALL_DAY shape rejection and corrupt ALL_DAY rejection.');
+
     const note = { ...common, id:'n1', content:'메모', tags:['한글','quote"',''], inputMethod:'TEXT', rawInput:null };
     const notes = repo.note;
     await notes.create(note);
@@ -137,7 +179,7 @@ async function main() {
     assert.deepEqual(ids(await notes.listRecent(10)), ['n2']);
     console.log('PASS: notes JSON round-trip, recent ordering, updates, safe corrupt-tag fallback without rewriting and soft deletion.');
 
-    const reminder = { id:'r1', targetType:'EVENT', targetId:'fuzzy', fireAt:later, timezone:'Asia/Seoul', relativeOffsetMinutes:-60, status:'SCHEDULED', deliveryMode:'LOCAL', createdAt:early, updatedAt:early, cancelledAt:null };
+    const reminder = { id:'r1', targetType:'EVENT', targetId:'fuzzy', fireAt:later, timezone:'Asia/Seoul', relativeOffsetMinutes:-60, status:'SCHEDULED', deliveryMode:'LOCAL', lastError:null, createdAt:early, updatedAt:early, cancelledAt:null };
     const reminders = repo.reminder;
     await reminders.create(reminder);
     assert.deepEqual(await reminders.findById('r1'), reminder);
@@ -159,6 +201,14 @@ async function main() {
     assert.equal(await reminders.findById('missing'), null);
     assert.equal(await reminders.update({ ...reminder, id:'missing' }), false);
     console.log('PASS: reminders round-trip, scheduled/target queries, cancellation update and corrupt-state rejection; no scheduling side effects.');
+
+    const failedReminder = { ...reminder, id:'r3', targetType:'TASK', targetId:'task1', status:'REQUESTED', lastError:'예약 실패' };
+    await reminders.create(failedReminder);
+    assert.deepEqual(await reminders.findById('r3'), failedReminder);
+    const retried = { ...failedReminder, status:'SCHEDULED', lastError:null, updatedAt:later };
+    assert.equal(await reminders.update(retried), true);
+    assert.deepEqual(await reminders.findById('r3'), retried);
+    console.log('PASS: reminder lastError round-trip and clearing on update.');
 
     const logs = repo['action-log'];
     const proposal = { actionId:'a1', type:'CREATE_NOTE', sourceInput:'메모', inputMethod:'TEXT', dependsOnActionIds:[], payload:{content:'메모',tags:[]} };

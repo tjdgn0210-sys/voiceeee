@@ -91,7 +91,7 @@ async function main() {
     const result=await execute(expense);
     assert.equal(result.result.status,'SUCCESS');
     const transaction=await transactions.findById(idsForAction('expense').transactionId);
-    assert.deepEqual(transaction,{id:idsForAction('expense').transactionId,type:'EXPENSE',amount:8000,currencyCode:'KRW',category:null,memo:null,occurredAt,inputMethod:'VOICE',rawInput:expense.sourceInput,createdAt:timestamp,updatedAt:timestamp,deletedAt:null});
+    assert.deepEqual(transaction,{id:idsForAction('expense').transactionId,type:'EXPENSE',amount:8000,currencyCode:'KRW',category:null,memo:null,includeInTotal:true,bundleItems:null,occurredAt,inputMethod:'VOICE',rawInput:expense.sourceInput,createdAt:timestamp,updatedAt:timestamp,deletedAt:null});
     const [log]=await actionLogs.findRecent(1);
     assert.equal(log.proposal.actionId,'expense');
     assert.equal(log.executionResult.status,'SUCCESS');

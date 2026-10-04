@@ -21,6 +21,8 @@ interface ReminderFields {
   /** Signed minutes from Event.startAt or Task.dueAt: -60 means one hour before. */
   relativeOffsetMinutes: number | null;
   deliveryMode: ReminderDeliveryMode;
+  /** Reason the last scheduling attempt failed; null when none failed (including not yet attempted). */
+  lastError: string | null;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
 }

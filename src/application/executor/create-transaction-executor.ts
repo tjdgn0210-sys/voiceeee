@@ -65,6 +65,7 @@ export function createTransactionExecutor(dependencies: TransactionExecutionDepe
     const expected: Transaction = {
       id: ids.transactionId, type: payload.transactionType, amount: payload.amount,
       currencyCode: payload.currencyCode, category: payload.category, memo: payload.memo,
+      includeInTotal: true, bundleItems: null,
       occurredAt: payload.occurredAt, inputMethod: proposal.inputMethod, rawInput: proposal.sourceInput,
       createdAt: timestamp, updatedAt: timestamp, deletedAt: null,
     };

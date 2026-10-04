@@ -11,6 +11,7 @@ interface ReminderRow {
   relative_offset_minutes: number | null;
   status: string;
   delivery_mode: Reminder['deliveryMode'];
+  last_error: string | null;
   created_at: string;
   updated_at: string;
   cancelled_at: string | null;
@@ -24,6 +25,7 @@ function fromRow(row: ReminderRow): Reminder {
     timezone: row.timezone,
     relativeOffsetMinutes: row.relative_offset_minutes,
     deliveryMode: row.delivery_mode,
+    lastError: row.last_error,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -42,32 +44,32 @@ export function createSqliteReminderRepository(database: ApplicationDatabase): R
   return {
     async create(entity) {
       await database.runAsync(
-        'INSERT INTO reminders (id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, created_at, updated_at, cancelled_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        entity.id, entity.targetType, entity.targetId, entity.fireAt, entity.timezone, entity.relativeOffsetMinutes, entity.status, entity.deliveryMode, entity.createdAt, entity.updatedAt, entity.cancelledAt,
+        'INSERT INTO reminders (id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        entity.id, entity.targetType, entity.targetId, entity.fireAt, entity.timezone, entity.relativeOffsetMinutes, entity.status, entity.deliveryMode, entity.lastError, entity.createdAt, entity.updatedAt, entity.cancelledAt,
       );
     },
     async findById(id) {
       const row = await database.getFirstAsync<ReminderRow>(
-        'SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, created_at, updated_at, cancelled_at FROM reminders WHERE id = ?', id,
+        'SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at FROM reminders WHERE id = ?', id,
       );
       return row ? fromRow(row) : null;
     },
     async listScheduled() {
       const rows = await database.getAllAsync<ReminderRow>(
-        "SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, created_at, updated_at, cancelled_at FROM reminders WHERE status = 'SCHEDULED' ORDER BY fire_at ASC, id ASC",
+        "SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at FROM reminders WHERE status = 'SCHEDULED' ORDER BY fire_at ASC, id ASC",
       );
       return rows.map(fromRow);
     },
     async findByTarget(targetType, targetId) {
       const rows = await database.getAllAsync<ReminderRow>(
-        'SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, created_at, updated_at, cancelled_at FROM reminders WHERE target_type = ? AND target_id = ? ORDER BY fire_at ASC, id ASC', targetType, targetId,
+        'SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at FROM reminders WHERE target_type = ? AND target_id = ? ORDER BY fire_at ASC, id ASC', targetType, targetId,
       );
       return rows.map(fromRow);
     },
     async update(entity) {
       const result = await database.runAsync(
-        'UPDATE reminders SET target_type = ?, target_id = ?, fire_at = ?, timezone = ?, relative_offset_minutes = ?, status = ?, delivery_mode = ?, updated_at = ?, cancelled_at = ? WHERE id = ?',
-        entity.targetType, entity.targetId, entity.fireAt, entity.timezone, entity.relativeOffsetMinutes, entity.status, entity.deliveryMode, entity.updatedAt, entity.cancelledAt, entity.id,
+        'UPDATE reminders SET target_type = ?, target_id = ?, fire_at = ?, timezone = ?, relative_offset_minutes = ?, status = ?, delivery_mode = ?, last_error = ?, updated_at = ?, cancelled_at = ? WHERE id = ?',
+        entity.targetType, entity.targetId, entity.fireAt, entity.timezone, entity.relativeOffsetMinutes, entity.status, entity.deliveryMode, entity.lastError, entity.updatedAt, entity.cancelledAt, entity.id,
       );
       return result.changes > 0;
     },

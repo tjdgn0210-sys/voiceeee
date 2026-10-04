@@ -1,4 +1,4 @@
-import type { EntityId, ISODateTime } from '../common/primitives';
+import type { EntityId, ISODateTime, Visibility } from '../common/primitives';
 
 export type TaskStatus = 'OPEN' | 'COMPLETED' | 'CANCELLED';
 
@@ -8,6 +8,7 @@ export interface Task {
   dueAt: ISODateTime | null;
   status: TaskStatus;
   completedAt: ISODateTime | null;
+  visibility: Visibility;
   sourceActionId: EntityId;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;

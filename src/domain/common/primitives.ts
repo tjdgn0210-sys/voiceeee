@@ -7,3 +7,7 @@ export type CurrencyCode = string;
 export type InputMethod = 'MANUAL' | 'VOICE' | 'TEXT';
 /** IANA timezone identifier, retained separately from UTC timestamps. */
 export type Timezone = string;
+/** Calendar date YYYY-MM-DD in the owning record's timezone; not an instant. */
+export type LocalDate = string;
+/** Friends see only PUBLIC events and tasks. Guest records stay PRIVATE. */
+export type Visibility = 'PUBLIC' | 'PRIVATE';

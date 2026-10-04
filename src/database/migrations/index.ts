@@ -1,5 +1,6 @@
 import { captureDraftsSql } from './002-capture-drafts';
 import { initialSchemaSql } from './001-initial-schema';
+import { eventsTasksExtensionSql } from './003-events-tasks-ext';
 
 export interface Migration {
   readonly version: number;
@@ -10,4 +11,5 @@ export interface Migration {
 export const migrations: readonly Migration[] = [
   { version: 1, sql: initialSchemaSql },
   { version: 2, sql: captureDraftsSql },
+  { version: 3, sql: eventsTasksExtensionSql },
 ];
