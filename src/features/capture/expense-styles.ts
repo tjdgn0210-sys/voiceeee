@@ -77,7 +77,7 @@ export function createExpenseStyles(s: Scaler) {
     listBody: { flex: 1, gap: s.space(space.half) },
     listTitle: { fontSize: s.font(16), fontWeight: '600', color: palette.ink },
     listMeta: { fontSize: s.font(14), color: palette.muted },
-    badge: { borderRadius: Radius.pill, borderWidth: 1, borderColor: palette.line, paddingHorizontal: s.space(space.two), paddingVertical: s.space(space.half), backgroundColor: palette.paper },
+    badge: { alignSelf: 'flex-start', borderRadius: Radius.pill, borderWidth: 1, borderColor: palette.line, paddingHorizontal: s.space(space.two), paddingVertical: s.space(space.half), backgroundColor: palette.paper },
     badgeText: { fontSize: s.font(12), fontWeight: '700', color: palette.muted },
     sectionTitle: { fontSize: s.font(17), fontWeight: '700', color: palette.ink },
     spread: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: s.space(space.two) },

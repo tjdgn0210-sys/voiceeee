@@ -12,6 +12,8 @@ export interface TransactionRepository {
   listRecent(limit: number): Promise<Transaction[]>;
   /** Every live transaction of any type, oldest first (export). */
   listAll(): Promise<Transaction[]>;
+  /** Live transactions of any type that occurred in [fromAt, untilAt), newest first. */
+  listBetween(fromAt: ISODateTime, untilAt: ISODateTime): Promise<Transaction[]>;
   update(entity: Transaction): Promise<boolean>;
   softDelete(id: EntityId, deletedAt: ISODateTime): Promise<boolean>;
 }

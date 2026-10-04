@@ -32,7 +32,8 @@ export async function initializeManualExpenses(): Promise<ExpenseServices> {
     editor: createExpenseEditor({ unitOfWork: createExpenseEditUnitOfWork(database), newId: randomUUID, now: base.now }),
     find: repository.findById,
     history: repository.listExpenses,
+    between: repository.listBetween,
     summary: async (from, until) => (await database.getFirstAsync<{ total: number; count: number }>(
-      "SELECT COALESCE(SUM(amount),0) AS total, COUNT(*) AS count FROM transactions WHERE deleted_at IS NULL AND type='EXPENSE' AND currency_code='KRW' AND occurred_at >= ? AND occurred_at < ?", from, until))!,
+      "SELECT COALESCE(SUM(amount),0) AS total, COUNT(*) AS count FROM transactions WHERE deleted_at IS NULL AND type='EXPENSE' AND currency_code='KRW' AND include_in_total=1 AND occurred_at >= ? AND occurred_at < ?", from, until))!,
   };
 }
