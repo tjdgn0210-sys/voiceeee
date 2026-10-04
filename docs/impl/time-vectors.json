@@ -1,0 +1,703 @@
+{
+  "version": 1,
+  "purpose": "M1-03 시간 해석 규칙의 시험 벡터. 앱(src/application/proposals/clock-time-rules.ts)과 M3 서버 게이트웨이가 같은 값으로 같은 결과를 내는지 확인하는 데 쓴다.",
+  "input": "now(UTC ISO), timeZone, dayOffset(0=오늘), hour, minute, meridiem(AM|PM|null), confirmedNextDay, kind(EVENT|EXPENSE). nowLocal은 읽기용 표기이며 now와 같은 시각이다.",
+  "expect": "status OK이면 at(UTC ISO)와 autoMeridiem, 아니면 ASK_MERIDIEM | ASK_TOMORROW | ASK_YESTERDAY. atLocal은 읽기용 표기이며 at과 같은 시각이다.",
+  "rules": "vectors의 모든 항목을 시험한다. pendingApproval은 앱 소유자가 승인하기 전이므로 시험에 쓰지 않는다. 승인되면 vectors로 옮긴다.",
+  "vectors": [
+    {
+      "id": "bp-01",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-02T21:30:00.000Z",
+        "nowLocal": "2026-10-03T06:30:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-02T22:00:00.000Z",
+        "atLocal": "2026-10-03T07:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bp-02",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-02T22:10:00.000Z",
+        "nowLocal": "2026-10-03T07:10:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T10:00:00.000Z",
+        "atLocal": "2026-10-03T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bp-03",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-03T11:00:00.000Z",
+        "nowLocal": "2026-10-03T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "ASK_TOMORROW"
+      }
+    },
+    {
+      "id": "bp-04",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "친구랑 7시 약속 → \"내일로 할까요?\"에 [예]",
+      "input": {
+        "now": "2026-10-03T11:00:00.000Z",
+        "nowLocal": "2026-10-03T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-04T10:00:00.000Z",
+        "atLocal": "2026-10-04T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bp-05",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "7시에 밥 7000원 먹었어(지출)",
+      "input": {
+        "now": "2026-10-03T11:00:00.000Z",
+        "nowLocal": "2026-10-03T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EXPENSE"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T10:00:00.000Z",
+        "atLocal": "2026-10-03T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bp-06",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "친구랑 19시 약속",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 19,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T10:00:00.000Z",
+        "atLocal": "2026-10-03T19:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bp-07",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "내일 3시 치과",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 3,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-04T06:00:00.000Z",
+        "atLocal": "2026-10-04T15:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bp-08",
+      "group": "blueprint",
+      "source": "설계도 4.3 · 14.6",
+      "sentence": "내일 9시 회의",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 9,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "ASK_MERIDIEM"
+      }
+    },
+    {
+      "id": "bp-09",
+      "group": "blueprint",
+      "source": "설계도 4.4(단서가 있으면 그대로)",
+      "sentence": "저녁 7시 약속",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": "PM",
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T10:00:00.000Z",
+        "atLocal": "2026-10-03T19:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bp-10",
+      "group": "blueprint",
+      "source": "설계도 4.4(단서가 있으면 그대로)",
+      "sentence": "내일 아침 7시 약속",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": "AM",
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T22:00:00.000Z",
+        "atLocal": "2026-10-04T07:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "d10-01",
+      "group": "midnight",
+      "source": "D-10 · 설계도 4.4(0시·자정 = 말한 날짜의 다음 날 00:00)",
+      "sentence": "내일 0시",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 0,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-04T15:00:00.000Z",
+        "atLocal": "2026-10-05T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "d10-02",
+      "group": "midnight",
+      "source": "D-10 · 설계도 4.4(0시·자정 = 말한 날짜의 다음 날 00:00)",
+      "sentence": "자정에 약속(날짜 없음 = 오늘의 다음 날 00:00)",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 0,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T15:00:00.000Z",
+        "atLocal": "2026-10-04T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bd-01",
+      "group": "boundary",
+      "source": "경계: 자정 직전",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-03T14:59:00.000Z",
+        "nowLocal": "2026-10-03T23:59:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "ASK_TOMORROW"
+      }
+    },
+    {
+      "id": "bd-02",
+      "group": "boundary",
+      "source": "경계: 자정 넘김",
+      "sentence": "친구랑 7시 약속 → [예]",
+      "input": {
+        "now": "2026-10-03T14:59:00.000Z",
+        "nowLocal": "2026-10-03T23:59:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-04T10:00:00.000Z",
+        "atLocal": "2026-10-04T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-03",
+      "group": "boundary",
+      "source": "경계: 자정 넘김",
+      "sentence": "0시에 약속",
+      "input": {
+        "now": "2026-10-03T14:50:00.000Z",
+        "nowLocal": "2026-10-03T23:50:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 0,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T15:00:00.000Z",
+        "atLocal": "2026-10-04T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bd-04",
+      "group": "boundary",
+      "source": "경계: 월말",
+      "sentence": "7시 약속 → [예]",
+      "input": {
+        "now": "2026-10-31T11:00:00.000Z",
+        "nowLocal": "2026-10-31T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-11-01T10:00:00.000Z",
+        "atLocal": "2026-11-01T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-05",
+      "group": "boundary",
+      "source": "경계: 월말",
+      "sentence": "내일 3시 치과",
+      "input": {
+        "now": "2026-10-31T01:00:00.000Z",
+        "nowLocal": "2026-10-31T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 3,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-11-01T06:00:00.000Z",
+        "atLocal": "2026-11-01T15:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-06",
+      "group": "boundary",
+      "source": "경계: 연말",
+      "sentence": "7시 약속 → [예]",
+      "input": {
+        "now": "2026-12-31T11:00:00.000Z",
+        "nowLocal": "2026-12-31T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2027-01-01T10:00:00.000Z",
+        "atLocal": "2027-01-01T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-07",
+      "group": "boundary",
+      "source": "경계: 연말 자정",
+      "sentence": "자정에 약속",
+      "input": {
+        "now": "2026-12-31T01:00:00.000Z",
+        "nowLocal": "2026-12-31T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 0,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-12-31T15:00:00.000Z",
+        "atLocal": "2027-01-01T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bd-08",
+      "group": "boundary",
+      "source": "경계: 윤년 2월 29일",
+      "sentence": "7시 약속 → [예]",
+      "input": {
+        "now": "2028-02-28T11:00:00.000Z",
+        "nowLocal": "2028-02-28T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2028-02-29T10:00:00.000Z",
+        "atLocal": "2028-02-29T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-09",
+      "group": "boundary",
+      "source": "경계: 윤년 2월 29일",
+      "sentence": "내일(2월 29일) 0시",
+      "input": {
+        "now": "2028-02-28T01:00:00.000Z",
+        "nowLocal": "2028-02-28T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 0,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2028-02-29T15:00:00.000Z",
+        "atLocal": "2028-03-01T00:00:00+09:00",
+        "autoMeridiem": false
+      }
+    },
+    {
+      "id": "bd-10",
+      "group": "boundary",
+      "source": "경계: 평년 2월 28일",
+      "sentence": "7시 약속 → [예]",
+      "input": {
+        "now": "2027-02-28T11:00:00.000Z",
+        "nowLocal": "2027-02-28T20:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2027-03-01T10:00:00.000Z",
+        "atLocal": "2027-03-01T19:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-11",
+      "group": "boundary",
+      "source": "경계: UTC 날짜와 현지 날짜가 다름(UTC 10월 3일 16:00 = KST 10월 4일 01:00)",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-03T16:00:00.000Z",
+        "nowLocal": "2026-10-04T01:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T22:00:00.000Z",
+        "atLocal": "2026-10-04T07:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-12",
+      "group": "boundary",
+      "source": "경계: UTC 날짜와 현지 날짜가 다름",
+      "sentence": "내일 3시 치과",
+      "input": {
+        "now": "2026-10-03T16:00:00.000Z",
+        "nowLocal": "2026-10-04T01:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 3,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-05T06:00:00.000Z",
+        "atLocal": "2026-10-05T15:00:00+09:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "bd-13",
+      "group": "boundary",
+      "source": "경계: UTC 날짜와 현지 날짜가 다름",
+      "sentence": "7시에 밥 7000원 먹었어(지출)",
+      "input": {
+        "now": "2026-10-03T16:00:00.000Z",
+        "nowLocal": "2026-10-04T01:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EXPENSE"
+      },
+      "expect": {
+        "status": "ASK_YESTERDAY"
+      }
+    },
+    {
+      "id": "tz-01",
+      "group": "timezone",
+      "source": "시간대 인자 확인(UTC)",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-03T06:30:00.000Z",
+        "nowLocal": "2026-10-03T06:30:00Z",
+        "timeZone": "UTC",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T07:00:00.000Z",
+        "atLocal": "2026-10-03T07:00:00Z",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "tz-02",
+      "group": "timezone",
+      "source": "시간대 인자 확인(서머타임 있는 시간대)",
+      "sentence": "친구랑 7시 약속",
+      "input": {
+        "now": "2026-10-03T14:30:00.000Z",
+        "nowLocal": "2026-10-03T10:30:00-04:00",
+        "timeZone": "America/New_York",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-10-03T23:00:00.000Z",
+        "atLocal": "2026-10-03T19:00:00-04:00",
+        "autoMeridiem": true
+      }
+    },
+    {
+      "id": "tz-03",
+      "group": "timezone",
+      "source": "시간대 인자 확인(서머타임 종료일을 넘김: 11월 1일에 -04:00 → -05:00)",
+      "sentence": "7시 약속 → [예]",
+      "input": {
+        "now": "2026-11-01T00:00:00.000Z",
+        "nowLocal": "2026-10-31T20:00:00-04:00",
+        "timeZone": "America/New_York",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": true,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "OK",
+        "at": "2026-11-02T00:00:00.000Z",
+        "atLocal": "2026-11-01T19:00:00-05:00",
+        "autoMeridiem": true
+      }
+    }
+  ],
+  "pendingApproval": [
+    {
+      "id": "sup-01",
+      "group": "pending-approval",
+      "source": "README 보강 행(앱 소유자 승인 전)",
+      "sentence": "12시에 약속",
+      "input": {
+        "now": "2026-10-03T04:00:00.000Z",
+        "nowLocal": "2026-10-03T13:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 12,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "ASK_TOMORROW"
+      }
+    },
+    {
+      "id": "sup-02",
+      "group": "pending-approval",
+      "source": "README 보강 행(앱 소유자 승인 전)",
+      "sentence": "내일 7시 반",
+      "input": {
+        "now": "2026-10-03T01:00:00.000Z",
+        "nowLocal": "2026-10-03T10:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 1,
+        "hour": 7,
+        "minute": 30,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EVENT"
+      },
+      "expect": {
+        "status": "ASK_MERIDIEM"
+      }
+    },
+    {
+      "id": "sup-03",
+      "group": "pending-approval",
+      "source": "README 보강 행(앱 소유자 승인 전)",
+      "sentence": "7시에 밥 7000원(오전 6시에 말함)",
+      "input": {
+        "now": "2026-10-02T21:00:00.000Z",
+        "nowLocal": "2026-10-03T06:00:00+09:00",
+        "timeZone": "Asia/Seoul",
+        "dayOffset": 0,
+        "hour": 7,
+        "minute": 0,
+        "meridiem": null,
+        "confirmedNextDay": false,
+        "kind": "EXPENSE"
+      },
+      "expect": {
+        "status": "ASK_YESTERDAY"
+      }
+    }
+  ]
+}
