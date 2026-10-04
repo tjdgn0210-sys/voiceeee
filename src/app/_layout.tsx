@@ -1,9 +1,10 @@
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { UndoBarHost } from '@/components/undo-bar';
 import { PlannerProvider } from '@/composition/planner-provider';
+import { RootStack } from '@/composition/root-stack';
 import { SettingsProvider } from '@/composition/settings-provider';
 import { InterpretationProvider } from '@/composition/interpretation-provider';
 import { ExpenseProvider } from '@/composition/expense-provider';
@@ -22,18 +23,7 @@ export default function RootLayout() {
             <PlannerProvider>
               <InterpretationProvider>
                 <VoiceCaptureProvider>
-                  <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="settings" options={{ title: '설정' }} />
-                    <Stack.Screen name="ai-settings" options={{ title: 'AI 연결 설정' }} />
-                    <Stack.Screen name="expense" options={{ title: '지출 상세' }} />
-                    <Stack.Screen name="manual-expense" options={{ title: '지출 직접 입력' }} />
-                    <Stack.Screen name="entry-form" options={{ title: '새로 적기' }} />
-                    <Stack.Screen name="event" options={{ title: '일정' }} />
-                    <Stack.Protected guard={false}>
-                      <Stack.Screen name="explore" />
-                    </Stack.Protected>
-                  </Stack>
+                  <RootStack />
                   <UndoBarHost />
                 </VoiceCaptureProvider>
               </InterpretationProvider>

@@ -20,7 +20,7 @@ test('the four tab routes exist and the layout lists them in order: 홈, 캘린�
 });
 
 test('tabs do not add a back button: the tab layout is the stack screen without its own header', () => {
-  const root_ = read('src/app/_layout.tsx');
+  const root_ = read('src/composition/root-stack.tsx');
   assert.match(root_, /name="\(tabs\)" options=\{\{ headerShown: false \}\}/);
   assert.doesNotMatch(root_, /name="index"/);
 });

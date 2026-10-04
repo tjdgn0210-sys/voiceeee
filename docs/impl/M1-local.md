@@ -145,6 +145,7 @@
 - 로그인 선택 화면(O3)은 M2. M1에서는 [로그인 없이 시작]만 동작하고 나머지 버튼은 숨기거나 "준비 중" 없이 비활성 처리하지 말고 **아예 두지 않는다**(실패를 성공처럼 보이지 않기).
 - 마이크 권한은 음성 버튼을 처음 누를 때 요청(3.2).
 - 설정 > 알림에 "알림 꺼짐 · 설정 열기" 안내(권한 `BLOCKED`일 때, `Linking.openSettings`).
+- 구현 메모(2026-10-04): 화면 `features/onboarding/onboarding-screen.tsx`(O1 환영 → O2 알림 설명 → O3 시작), 첫 실행 문 `composition/root-stack.tsx`(`Stack.Protected`, 저장 키 `settings.onboardingDone`), 설정의 안내 `features/settings/notification-permission-notice.tsx`, 시험 `scripts/verify-onboarding.cjs`(구조 검사). ① O3는 로그인 선택 화면 대신 [로그인 없이 시작] 한 개만 두었다(명세). ② [나중에]는 시스템 팝업 없이 다음 단계로 간다. ③ 마이크 권한은 기존 음성 입력 흐름이 처음 누를 때 요청한다. **실기기 확인 필요:** iOS에서 거부 후 앱이 팝업을 다시 띄우지 않는지, Android 13+ 알림 팝업.
 
 ### M1-11 결과 카드(H2) 로컬 경로 · 되돌리기 · 중복 지출 (설계도 4.2 · 11.3 · 15)
 - 로컬 파서 성공 → 자동 저장 + 카드(지출) + [되돌리기](화면 아래 **되돌리기 바**, 약 8초 — 시안 `undoToast`; 일정 · 할 일 · 리마인더의 되돌리기 로직은 M1-02에서 추가됨).
