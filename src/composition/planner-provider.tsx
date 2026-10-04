@@ -1,17 +1,17 @@
 import { useEffect, useState, type PropsWithChildren } from 'react';
 import { Button, Text, View } from 'react-native';
-import type { PlannerServices } from '../application/planner/planner-services';
 import { createUndoBar } from '../application/undo/undo-bar';
 import { PlannerContext } from '../features/calendar/planner-context';
 import { UndoBarContext } from '../hooks/use-undo-bar';
-import { initializePlannerServices } from './planner-services';
+import { NotificationProvider } from './notification-provider';
+import { initializePlannerServices, type PlannerComposition } from './planner-services';
 
 export function PlannerProvider({ children }: PropsWithChildren) {
   const [undoBar] = useState(() => createUndoBar({
     setTimer: (callback, milliseconds) => setTimeout(callback, milliseconds),
     clearTimer: handle => clearTimeout(handle as ReturnType<typeof setTimeout>),
   }));
-  const [services, setServices] = useState<PlannerServices | null>(null);
+  const [services, setServices] = useState<PlannerComposition | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -23,7 +23,11 @@ export function PlannerProvider({ children }: PropsWithChildren) {
     return () => { active = false; };
   }, [attempt, undoBar]);
   if (services) {
-    return <UndoBarContext.Provider value={undoBar}><PlannerContext.Provider value={services}>{children}</PlannerContext.Provider></UndoBarContext.Provider>;
+    return <UndoBarContext.Provider value={undoBar}>
+      <PlannerContext.Provider value={services.planner}>
+        <NotificationProvider adapter={services.notificationAdapter} reminderSync={services.reminderSync}>{children}</NotificationProvider>
+      </PlannerContext.Provider>
+    </UndoBarContext.Provider>;
   }
   return <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fff' }}>
     <Text accessibilityRole={failed ? 'alert' : 'text'} style={{ color: '#111' }}>{failed ? '일정을 준비하지 못했어요.' : '일정을 준비하고 있어요…'}</Text>

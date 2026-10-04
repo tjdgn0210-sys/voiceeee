@@ -14,7 +14,7 @@ import type { Reminder } from '../../domain/reminder/reminder';
 import { palette } from '../capture/expense-styles';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 import { useSettings } from '../settings/settings-context';
-import { useNotificationPermission } from '../settings/use-notification-permission';
+import { useNotifications } from '../settings/notification-context';
 import { leaveScreen } from './leave';
 import { usePlanner } from './planner-context';
 
@@ -24,7 +24,8 @@ export function EventDetailScreen() {
   const planner = usePlanner();
   const styles = useExpenseStyles();
   const { settings } = useSettings();
-  const permission = useNotificationPermission();
+  const notifications = useNotifications();
+  const permission = notifications.permission;
   const [event, setEvent] = useState<Event | null>(null);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +107,19 @@ export function EventDetailScreen() {
                       <View accessibilityRole="alert" style={styles.banner}>
                         <Text style={[styles.bannerText, { fontWeight: '700' }]}>알림 꺼짐</Text>
                         <Text style={styles.bannerText}>{describeSilence(silence.reason, '')}</Text>
+                        {silence.reason === 'PERMISSION_BLOCKED' && (
+                          <Pressable accessibilityRole="button" onPress={notifications.openSystemSettings} style={styles.linkButton}>
+                            <Text style={styles.linkText}>설정 열기</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    )}
+                    {!silence.silent && permission === 'UNDETERMINED' && (
+                      <View style={styles.banner}>
+                        <Text style={styles.bannerText}>알림을 받으려면 알림을 허용해야 해요.</Text>
+                        <Pressable accessibilityRole="button" onPress={() => { void notifications.requestPermission().then(() => setAttempt(count => count + 1)); }} style={styles.linkButton}>
+                          <Text style={styles.linkText}>알림 허용하기</Text>
+                        </Pressable>
                       </View>
                     )}
                     {live.map(item => {
@@ -117,7 +131,14 @@ export function EventDetailScreen() {
                             <Text style={styles.listTitle}>{item.relativeOffsetMinutes === null ? '직접 지정한 알림' : reminderLabel(item.relativeOffsetMinutes)}</Text>
                             <Text style={styles.listMeta}>{dateLabel(fire.date)} {fire.time}</Text>
                           </View>
-                          <Text style={[styles.listMeta, view.attention && { color: palette.danger, fontWeight: '700' }]}>{view.text}</Text>
+                          <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={[styles.listMeta, view.attention && { color: palette.danger, fontWeight: '700' }]}>{view.text}</Text>
+                            {view.retryable && (
+                              <Pressable accessibilityRole="button" accessibilityLabel="알림 다시 시도" onPress={() => { void notifications.sync().then(() => setAttempt(count => count + 1)); }} style={styles.linkButton}>
+                                <Text style={styles.linkText}>다시 시도</Text>
+                              </Pressable>
+                            )}
+                          </View>
                         </View>
                       );
                     })}
