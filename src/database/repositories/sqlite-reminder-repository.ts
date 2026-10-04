@@ -60,6 +60,12 @@ export function createSqliteReminderRepository(database: ApplicationDatabase): R
       );
       return rows.map(fromRow);
     },
+    async listLive() {
+      const rows = await database.getAllAsync<ReminderRow>(
+        "SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at FROM reminders WHERE status <> 'CANCELLED' ORDER BY fire_at ASC, id ASC",
+      );
+      return rows.map(fromRow);
+    },
     async findByTarget(targetType, targetId) {
       const rows = await database.getAllAsync<ReminderRow>(
         'SELECT id, target_type, target_id, fire_at, timezone, relative_offset_minutes, status, delivery_mode, last_error, created_at, updated_at, cancelled_at FROM reminders WHERE target_type = ? AND target_id = ? ORDER BY fire_at ASC, id ASC', targetType, targetId,

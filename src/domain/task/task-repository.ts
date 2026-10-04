@@ -12,6 +12,8 @@ export interface TaskRepository {
   create(entity: Task): Promise<void>;
   findById(id: EntityId): Promise<Task | null>;
   listActive(): Promise<Task[]>;
+  /** Every live task of any status (open first by due time, then completed). */
+  listAll(): Promise<Task[]>;
   update(entity: Task): Promise<boolean>;
   softDelete(id: EntityId, deletedAt: ISODateTime): Promise<boolean>;
   restore(id: EntityId, expectedDeletedAt: ISODateTime, restoredAt: ISODateTime): Promise<boolean>;

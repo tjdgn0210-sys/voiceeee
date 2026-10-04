@@ -1,4 +1,4 @@
-import type { EntityId, ISODateTime } from '../common/primitives';
+import type { EntityId, ISODateTime, LocalDate } from '../common/primitives';
 import type { Event } from './event';
 
 /** Normal reads exclude soft-deleted rows. Writes accept full validated entities.
@@ -12,6 +12,10 @@ export interface EventRepository {
   create(entity: Event): Promise<void>;
   findById(id: EntityId): Promise<Event | null>;
   listUpcoming(): Promise<Event[]>;
+  /** Live events of any status that start in [fromAt, untilAt) (EXACT) or fall on [fromDate, untilDate) (ALL_DAY and dated FUZZY). */
+  listInRange(range: { fromAt: ISODateTime; untilAt: ISODateTime; fromDate: LocalDate; untilDate: LocalDate }): Promise<Event[]>;
+  /** Every live event, for export. Order: EXACT by start, then dated, then undated. */
+  listAll(): Promise<Event[]>;
   update(entity: Event): Promise<boolean>;
   softDelete(id: EntityId, deletedAt: ISODateTime): Promise<boolean>;
   restore(id: EntityId, expectedDeletedAt: ISODateTime, restoredAt: ISODateTime): Promise<boolean>;

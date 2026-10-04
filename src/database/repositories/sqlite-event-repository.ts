@@ -69,6 +69,19 @@ export function createSqliteEventRepository(database: ApplicationDatabase): Even
       );
       return rows.map(fromRow);
     },
+    async listInRange(range) {
+      const rows = await database.getAllAsync<EventRow>(
+        "SELECT id, title, time_kind, start_at, fuzzy_time, date, end_at, timezone, location, status, visibility, source_action_id, created_at, updated_at, deleted_at FROM events WHERE deleted_at IS NULL AND ((time_kind = 'EXACT' AND start_at >= ? AND start_at < ?) OR (time_kind IN ('FUZZY', 'ALL_DAY') AND date >= ? AND date < ?)) ORDER BY start_at IS NULL, start_at ASC, id ASC",
+        range.fromAt, range.untilAt, range.fromDate, range.untilDate,
+      );
+      return rows.map(fromRow);
+    },
+    async listAll() {
+      const rows = await database.getAllAsync<EventRow>(
+        'SELECT id, title, time_kind, start_at, fuzzy_time, date, end_at, timezone, location, status, visibility, source_action_id, created_at, updated_at, deleted_at FROM events WHERE deleted_at IS NULL ORDER BY start_at IS NULL, start_at ASC, date ASC, id ASC',
+      );
+      return rows.map(fromRow);
+    },
     async update(entity) {
       const result = await database.runAsync(
         'UPDATE events SET title = ?, time_kind = ?, start_at = ?, fuzzy_time = ?, date = ?, end_at = ?, timezone = ?, location = ?, status = ?, visibility = ?, source_action_id = ?, updated_at = ?, deleted_at = ? WHERE id = ? AND deleted_at IS NULL',

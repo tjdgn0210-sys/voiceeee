@@ -52,6 +52,12 @@ export function createSqliteTaskRepository(database: ApplicationDatabase): TaskR
       );
       return rows.map(fromRow);
     },
+    async listAll() {
+      const rows = await database.getAllAsync<TaskRow>(
+        "SELECT id, title, due_at, status, completed_at, visibility, source_action_id, created_at, updated_at, deleted_at FROM tasks WHERE deleted_at IS NULL ORDER BY status = 'OPEN' DESC, due_at IS NULL, due_at ASC, id ASC",
+      );
+      return rows.map(fromRow);
+    },
     async update(entity) {
       const result = await database.runAsync(
         'UPDATE tasks SET title = ?, due_at = ?, status = ?, completed_at = ?, visibility = ?, source_action_id = ?, updated_at = ?, deleted_at = ? WHERE id = ? AND deleted_at IS NULL',

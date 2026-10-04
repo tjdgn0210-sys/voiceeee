@@ -10,5 +10,7 @@ export interface ReminderRepository {
   findById(id: EntityId): Promise<Reminder | null>;
   findByTarget(targetType: ReminderTargetType, targetId: EntityId): Promise<Reminder[]>;
   listScheduled(): Promise<Reminder[]>;
+  /** Every reminder that is not cancelled, ordered by fireAt then id. */
+  listLive(): Promise<Reminder[]>;
   update(entity: Reminder): Promise<boolean>;
 }

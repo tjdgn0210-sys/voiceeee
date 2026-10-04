@@ -103,6 +103,7 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
     <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/ai-settings')} style={styles.secondary}><Text style={styles.secondaryText}>AI 연결 설정</Text></Pressable>
     <View style={styles.row}>
       <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/manual-expense')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>직접 입력</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/entry-form')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>일정 · 할 일 입력</Text></Pressable>
       {!!editor.draft.fields.text && <Pressable accessibilityRole="button" disabled={disabled} style={styles.secondary}
         onPress={discard}><Text style={styles.secondaryText}>초안 비우기</Text></Pressable>}
     </View>
