@@ -4,12 +4,14 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 import { NotificationPermissionNotice } from './notification-permission-notice';
+import { useSettings } from './settings-context';
 import { useIsLoggedIn } from './use-is-logged-in';
 
 /** T1: settings. Sections are added by later units (notifications, font size, my data); login-only sections arrive in M2. */
 export function SettingsScreen() {
   const styles = useExpenseStyles();
   const loggedIn = useIsLoggedIn();
+  const { settings, scaler } = useSettings();
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: '설정' }} />
@@ -22,6 +24,12 @@ export function SettingsScreen() {
         <View style={styles.card}>
           <Text style={styles.heading} accessibilityRole="header">알림</Text>
           <NotificationPermissionNotice />
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.heading} accessibilityRole="header">화면</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={`글자 크기 ${settings.followSystemFont ? '시스템 설정을 따름' : `${Math.round(settings.fontScale * 100)}%`}, 바꾸기`} onPress={() => router.push('/font-size')} style={styles.secondary}>
+            <Text style={styles.secondaryText}>글자 크기 · {settings.followSystemFont ? '시스템 설정' : `${Math.round(scaler.scale * 100)}%`}</Text>
+          </Pressable>
         </View>
         <View style={styles.card}>
           <Text style={styles.heading} accessibilityRole="header">AI</Text>

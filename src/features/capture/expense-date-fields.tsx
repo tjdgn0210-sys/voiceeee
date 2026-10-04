@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { localDateTimeFields } from './expense-form';
-import { expenseStyles as styles } from './expense-styles';
+import { useExpenseStyles } from './use-expense-styles';
 export interface ExpenseDateProps { date: string; time: string; disabled: boolean; onChange(fields: { date: string; time: string }): void }
 export function ExpenseDateFields({ date, time, disabled, onChange }: ExpenseDateProps) {
+  const styles = useExpenseStyles();
   const [picker, setPicker] = useState<'date' | 'time' | null>(null);
   const value = new Date(`${date}T${time}:00`);
   function change(event: DateTimePickerEvent, selected?: Date) {

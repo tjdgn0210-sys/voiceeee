@@ -1,7 +1,8 @@
 import { Text, TextInput, View } from 'react-native';
 import type { ExpenseDateProps } from './expense-date-fields';
-import { expenseStyles as styles } from './expense-styles';
+import { useExpenseStyles } from './use-expense-styles';
 export function ExpenseDateFields({ date, time, disabled, onChange }: ExpenseDateProps) {
+  const styles = useExpenseStyles();
   return <View style={styles.field}>
     <Text style={styles.text}>발생 날짜 (YYYY-MM-DD)</Text><TextInput accessibilityLabel="발생 날짜" editable={!disabled} value={date} maxLength={10} style={styles.input} onChangeText={value => onChange({ date: value, time })} />
     <Text style={styles.text}>발생 시간 (HH:mm)</Text><TextInput accessibilityLabel="발생 시간" editable={!disabled} value={time} maxLength={5} style={styles.input} onChangeText={value => onChange({ date, time: value })} />

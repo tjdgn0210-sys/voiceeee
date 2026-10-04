@@ -20,10 +20,11 @@ function SettingsButton() {
 
 /** The four tabs. Only the first screen of a tab has no back button; the settings button sits at the top right. */
 export default function TabsLayout() {
+  const s = useScaler();
   return (
     <Tabs
       tabBar={props => <AppTabBar {...props} />}
-      screenOptions={{ headerRight: () => <SettingsButton />, headerTitleAlign: 'left' }}>
+      screenOptions={{ headerRight: () => <SettingsButton />, headerTitleAlign: 'left', headerTitleStyle: { fontSize: s.font(17), color: palette.ink } }}>
       <Tabs.Screen name="index" options={{ title: '홈' }} />
       <Tabs.Screen name="calendar" options={{ title: '캘린더' }} />
       <Tabs.Screen name="expenses" options={{ title: '지출' }} />

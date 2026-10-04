@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { expenseStyles as styles } from '../capture/expense-styles';
+import { useExpenseStyles } from '../capture/use-expense-styles';
 import { useAiConnection } from './ai-connection-context';
 export function AiConnectionScreen() {
+  const styles = useExpenseStyles();
   const connection = useAiConnection();
   const [url, setUrl] = useState(connection.serverUrl ?? process.env.EXPO_PUBLIC_AI_SERVER_URL ?? '');
   const [token, setToken] = useState('');

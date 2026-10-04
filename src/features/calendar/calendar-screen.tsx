@@ -112,7 +112,7 @@ export function CalendarScreen() {
           </Pressable>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { padding: s.space(Spacing.two), gap: s.space(Spacing.one) }]}>
           <View style={{ flexDirection: 'row' }}>
             {WEEKDAY_NAMES.map(name => (
               <View key={name} style={{ flex: 1, alignItems: 'center', paddingBottom: s.space(Spacing.one) }}>
@@ -208,7 +208,7 @@ function DayCell({ date, inMonth, isToday, isSelected, day, onPress }: {
         backgroundColor: isSelected ? palette.nowFill : 'transparent',
       }}>
       <Text style={{
-        fontSize: s.font(15), color: inMonth ? palette.ink : palette.muted, fontWeight: isToday ? '700' : '500',
+        fontSize: s.font(14), color: inMonth ? palette.ink : palette.muted, fontWeight: isToday ? '700' : '500',
         textDecorationLine: isToday ? 'underline' : 'none', opacity: inMonth ? 1 : 0.55,
       }}>{dayNumber}</Text>
       <View style={{ flexDirection: 'row', gap: s.space(Spacing.half), marginTop: s.space(Spacing.half), minHeight: mark }}>

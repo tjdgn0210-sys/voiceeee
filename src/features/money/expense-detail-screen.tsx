@@ -8,8 +8,9 @@ import { ExpenseFields } from '../capture/expense-fields';
 import { expenseProposal, localDateTimeFields, type ExpenseForm } from '../capture/expense-form';
 import { usePersistentDraft } from '../capture/use-persistent-draft';
 import { DraftStatus } from '../capture/draft-status';
-import { expenseStyles as styles } from '../capture/expense-styles';
+import { useExpenseStyles } from '../capture/use-expense-styles';
 function EditExpense({ entity, onClose }: { entity: Transaction; onClose(): void }) {
+  const styles = useExpenseStyles();
   const expenses = useExpenses();
   const draft = usePersistentDraft(`edit:${entity.id}`, { amount: String(entity.amount), category: entity.category ?? '', memo: entity.memo ?? '', ...localDateTimeFields(entity.occurredAt), expectedUpdatedAt: entity.updatedAt });
   const [working, setWorking] = useState(false);
@@ -29,7 +30,7 @@ function EditExpense({ entity, onClose }: { entity: Transaction; onClose(): void
     } catch { setMessage('변경 또는 초안 정리를 확인하지 못했습니다. 같은 내용으로 재시도하거나 홈에서 기록을 확인해 주세요.'); }
     finally { busy.current = false; setWorking(false); }
   }
-  return <View style={{ gap: 20 }}>
+  return <View style={styles.formStack}>
     <Stack.Screen options={{ title: '지출 수정', gestureEnabled: !working, headerBackVisible: !working }} />
     <Text style={styles.heading}>기록 수정</Text>
     {stale && <View style={styles.card}><Text accessibilityRole="alert" style={styles.error}>이 초안을 만든 뒤 기록이 변경되었습니다. 최신 내용을 불러온 뒤 수정해 주세요.</Text><Pressable accessibilityRole="button" style={styles.secondary} onPress={() => { void draft.clear().catch(() => setMessage('초안을 초기화하지 못했습니다.')); }}><Text style={styles.secondaryText}>최신 내용으로 다시 시작</Text></Pressable></View>}
@@ -42,6 +43,7 @@ function EditExpense({ entity, onClose }: { entity: Transaction; onClose(): void
   </View>;
 }
 export function ExpenseDetailScreen() {
+  const styles = useExpenseStyles();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const expenses = useExpenses();
   const [entity, setEntity] = useState<Transaction | null>(null);

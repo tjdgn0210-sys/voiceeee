@@ -78,3 +78,23 @@ test('settings are stored as JSON, merged on update, and cleared by reset', asyn
   assert.deepEqual(await service.load(), DEFAULT_SETTINGS);
   assert.throws(() => db.raw.prepare("INSERT INTO settings (key, value) VALUES ('bad', 'not json')").run(), /constraint/i);
 });
+
+test('every feature screen follows the font scale: no static style import and no fixed font size or touch height', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const root = path.resolve(__dirname, '..');
+  const files = [];
+  const walk = dir => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) { const full = path.join(dir, entry.name); if (entry.isDirectory()) walk(full); else if (/\.tsx$/.test(entry.name)) files.push(full); } };
+  for (const dir of ['src/features', 'src/components/app-tab-bar.tsx', 'src/components/undo-bar.tsx']) {
+    const full = path.join(root, dir);
+    if (fs.statSync(full).isDirectory()) walk(full); else files.push(full);
+  }
+  assert.ok(files.length > 20);
+  for (const file of files) {
+    const source = fs.readFileSync(file, 'utf8');
+    const name = path.relative(root, file);
+    assert.ok(!/expenseStyles as styles/.test(source), `${name} uses the static 100% styles`);
+    assert.ok(!/fontSize:\s*\d/.test(source), `${name} has a fixed fontSize`);
+    assert.ok(!/minHeight:\s*\d/.test(source), `${name} has a fixed minHeight`);
+  }
+});

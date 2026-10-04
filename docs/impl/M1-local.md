@@ -161,6 +161,7 @@
 - 설정은 `settings` 테이블(`fontScale`, `followSystemFont`)에 저장. 앱 시작 시 깜빡임 없이 적용.
 - 시험(자동): 헬퍼 값(70% → 0.7배, 200% → 간격 1.5배), 터치 영역 최소 44 유지. **시험(실기기):** 70 · 100 · 130 · 200%에서 홈 · 캘린더 · 지출 · 설정 · 보내기 시트 등 모든 화면 확인.
 - 완료 기준: 200%에서 모든 화면이 잘림 없이 사용 가능, 가로 스크롤 없음.
+- 구현 메모(2026-10-04): 헬퍼 `utils/font-scale.ts`(M1-04에서 먼저 만듦), 배율 컨텍스트 `features/settings/settings-context.tsx`(`SettingsProvider`가 화면보다 먼저 값을 읽어 깜빡임 없음), 화면 `features/settings/font-size-screen.tsx`(경로 `/font-size`), 슬라이더 `step-slider.tsx`(`react-native-gesture-handler` 사용, 새 패키지 없음 — 화면 읽기 프로그램에서는 "조절 가능" 요소로 위 · 아래 쓸기), 공유 스타일 `expense-styles.ts`는 `createExpenseStyles(scaler)` + 훅 `useExpenseStyles()`. **영향받은 화면(공유 스타일 사용처 7개를 정적 → 배율 훅으로 변경):** `draft-status`, `expense-date-fields`(+`.web`), `expense-fields`, `manual-expense-screen`, `expense-detail-screen`, `ai-connection-screen`, `capture-composer`. 시험 `scripts/verify-settings-font-scale.cjs`(헬퍼 값 · 14단계 · 터치 영역 44 이상 · 모든 화면이 고정 글자 크기를 쓰지 않음). ① 웹 미리보기(375px 폭)에서 200%일 때 홈 · 캘린더 · 지출 · 사람 탭에 가로 넘침이 없음을 확인했다. **실기기 확인 필요:** 70 · 100 · 130 · 200% 전 화면(보내기 시트는 M4), 시스템 글자 크기 따르기, 슬라이더 드래그. ② 상단 헤더 제목은 배율을 따르게 했지만 헤더 높이는 시스템 기본이라 큰 글자에서 헤더가 답답할 수 있다(실기기 확인). ③ 시작 화면(로딩 문구)과 스타터 예제 파일(`explore.tsx`, `themed-text.tsx`)은 배율 대상에서 뺐다.
 
 ### M1-13 엑셀 내보내기 (T6, 설계도 10.3, 시안 `#exportSheet`)
 - 라이브러리 선택(프론트 구현 시 결정, 사유를 보고): SheetJS 계열 또는 exceljs + `expo-file-system` + `expo-sharing`. `npx expo install`로 설치.

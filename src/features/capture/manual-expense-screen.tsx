@@ -4,11 +4,12 @@ import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useExpenses } from './expense-context';
 import { expenseProposal, initialExpenseForm, type ExpenseForm } from './expense-form';
-import { expenseStyles as styles } from './expense-styles';
+import { useExpenseStyles } from './use-expense-styles';
 import { ExpenseFields } from './expense-fields';
 import { usePersistentDraft } from './use-persistent-draft';
 import { DraftStatus } from './draft-status';
 export function ManualExpenseScreen() {
+  const styles = useExpenseStyles();
   const expenses = useExpenses();
   const draft = usePersistentDraft('manual', { ...initialExpenseForm(expenses.now()) });
   const busy = useRef(false);
