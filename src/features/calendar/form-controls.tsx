@@ -35,6 +35,7 @@ export function SegmentControl<T extends string>({ label, options, value, onChan
             accessibilityRole="radio"
             accessibilityLabel={option.label}
             accessibilityState={{ selected, disabled: !!disabled }}
+            aria-checked={selected}
             disabled={disabled}
             onPress={() => onChange(option.value)}
             style={[styles.segmentButton, selected && styles.segmentButtonSelected]}>
@@ -61,6 +62,7 @@ export function ChipGroup<T extends string | number>({ label, options, selected,
             accessibilityRole="checkbox"
             accessibilityLabel={option.label}
             accessibilityState={{ checked: isSelected, disabled: !!disabled }}
+            aria-checked={isSelected}
             disabled={disabled}
             onPress={() => onToggle(option.value)}
             style={[styles.chip, isSelected && styles.chipSelected]}>
@@ -82,6 +84,7 @@ export function SwitchRow({ title, hint, value, onChange, disabled }: {
       accessibilityRole="switch"
       accessibilityLabel={title}
       accessibilityState={{ checked: value, disabled: !!disabled }}
+      aria-checked={value}
       disabled={disabled}
       onPress={() => onChange(!value)}
       style={styles.switchRow}>

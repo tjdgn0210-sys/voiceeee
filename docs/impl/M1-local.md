@@ -115,6 +115,7 @@
 - 기존 `components/app-tabs.tsx` · `app-tabs.web.tsx`(Expo 기본 탭)를 이 구조로 바꾼다. `app/` 라우트: `(tabs)/index`, `(tabs)/calendar`, `(tabs)/expenses`, `(tabs)/people`; 설정 · 요금제 등은 스택 화면. **웹과 모바일 파일을 모두 확인**한다(`.web.tsx` 규칙).
 - 탭 버튼 높이 44px 이상. 시스템 안전 영역 아래로 겹치지 않음(`BottomTabInset` 기존 상수 확인).
 - 완료 기준: 4개 탭 이동, 뒤로 가기 규칙(탭 첫 화면 없음, 홈에서 연 지출 상세에서는 있음), 200%에서 탭 이름이 잘리지 않음.
+- 구현 메모(2026-10-04): `app/(tabs)/_layout.tsx`(`expo-router/js-tabs`의 `Tabs` + 직접 만든 탭 바 `components/app-tab-bar.tsx`, 웹 · 모바일 공용이라 `.web.tsx`는 없앴다), 화면 `features/home/home-screen.tsx`(빠른 기록 · 오늘 일정 4줄 · 최근 지출 3건 · 게스트 배너), `features/money/expenses-screen.tsx`(지출 목록, 기존 홈 목록을 옮김), `features/people/people-screen.tsx`(게스트 안내), `features/settings/settings-screen.tsx`(설정, 이후 단위가 구역을 채움). 시험 `scripts/verify-navigation.cjs`(구조 검사만, 화면 동작은 웹으로 확인). ① 확인: `expo-router`의 `Tabs`는 설치된 버전에서 "deprecated"로 표시되어 `expo-router/js-tabs`에서 가져온다(공식 문서는 `expo-router`라고 적고 있어 서로 다르다). ② 웹 react-native-web 0.21은 `accessibilityState`를 DOM `aria-*`로 바꿔 주지 않아 선택 상태 컨트롤에 `aria-selected`/`aria-checked`를 함께 둔다. ③ 홈 배너에는 로그인 버튼을 두지 않았다(M2에서 로그인이 생길 때 추가). ④ 알림 배지 · AI 사용량 자리는 M3 · M4에서 채운다(지금은 자리도 만들지 않음).
 
 ### M1-08 로컬 알림 어댑터 (설계도 8.1 · 8.2 · 8.3, 15)
 - 설치: `npx expo install expo-notifications`(패키지 이름 · 사유를 보고).

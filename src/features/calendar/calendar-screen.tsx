@@ -83,8 +83,7 @@ export function CalendarScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.spread}>
-          <Text style={styles.title} accessibilityRole="header">캘린더</Text>
+        <View style={[styles.spread, { justifyContent: 'flex-end' }]}>
           <View style={styles.row}>
             {selected !== today && (
               <Pressable accessibilityRole="button" accessibilityLabel="오늘로 이동" onPress={() => setSelected(today)} style={styles.linkButton}>

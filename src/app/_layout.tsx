@@ -23,12 +23,12 @@ export default function RootLayout() {
               <InterpretationProvider>
                 <VoiceCaptureProvider>
                   <Stack>
-                    <Stack.Screen name="index" options={{ title: 'Voice Life Manager' }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="settings" options={{ title: '설정' }} />
                     <Stack.Screen name="ai-settings" options={{ title: 'AI 연결 설정' }} />
                     <Stack.Screen name="expense" options={{ title: '지출 상세' }} />
                     <Stack.Screen name="manual-expense" options={{ title: '지출 직접 입력' }} />
                     <Stack.Screen name="entry-form" options={{ title: '새로 적기' }} />
-                    <Stack.Screen name="calendar" options={{ title: '캘린더' }} />
                     <Stack.Screen name="event" options={{ title: '일정' }} />
                     <Stack.Protected guard={false}>
                       <Stack.Screen name="explore" />
