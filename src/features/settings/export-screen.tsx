@@ -73,7 +73,7 @@ export function ExportScreen() {
       <Stack.Screen options={{ title: '엑셀로 내보내기' }} />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.card}>
-          <Text style={styles.fieldLabel}>기간</Text>
+          <Text style={styles.fieldLabel} accessibilityRole="header">기간</Text>
           <SegmentControl<PeriodChoice> label="기간" options={PERIOD_OPTIONS} value={choice} onChange={value => { setChoice(value); setDone(null); setFailure(null); }} />
           {choice === 'RANGE' && (
             <View style={styles.row}>
@@ -81,7 +81,7 @@ export function ExportScreen() {
               <PickerField kind="date" label="끝나는 날" value={to} onChange={value => { setTo(value); setDone(null); }} />
             </View>
           )}
-          <Text style={styles.fieldLabel}>내보낼 기록</Text>
+          <Text style={styles.fieldLabel} accessibilityRole="header">내보낼 기록</Text>
           <SegmentControl<ExportKind> label="내보낼 기록" options={KIND_OPTIONS} value={kind} onChange={value => { setKind(value); setDone(null); setFailure(null); }} />
         </View>
 
@@ -99,8 +99,8 @@ export function ExportScreen() {
         </View>
 
         {!!failure && (
-          <View accessibilityRole="alert" style={styles.card}>
-            <Text style={styles.error}>{failure}</Text>
+          <View style={styles.card}>
+            <Text accessibilityRole="alert" style={styles.error}>{failure}</Text>
             <Pressable accessibilityRole="button" onPress={() => { setChoice('THIS_MONTH'); setFailure(null); }} style={styles.secondary}>
               <Text style={styles.secondaryText}>기간을 이번 달로 줄이기</Text>
             </Pressable>

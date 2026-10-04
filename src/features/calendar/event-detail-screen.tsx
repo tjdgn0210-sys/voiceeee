@@ -85,10 +85,7 @@ export function EventDetailScreen() {
           ) : (
             <>
               <View style={styles.card}>
-                <View style={styles.spread}>
-                  <Text style={styles.eyebrow}>일정</Text>
-                  <View style={styles.badge}><Text style={styles.badgeText}>{EVENT_STATUS_LABELS[lifecycle]}</Text></View>
-                </View>
+                <View accessible accessibilityLabel={`상태 ${EVENT_STATUS_LABELS[lifecycle]}`} style={styles.badge}><Text style={styles.badgeText}>{EVENT_STATUS_LABELS[lifecycle]}</Text></View>
                 <Text style={styles.title} accessibilityRole="header">{event.title}</Text>
                 <Text style={styles.text}>{date ? dateLabel(date) : '날짜 없음'} · {eventTimeLabel(event)}</Text>
                 {!!event.location && <Text style={styles.text}>장소 · {event.location}</Text>}
