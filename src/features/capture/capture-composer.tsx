@@ -104,6 +104,7 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
     <View style={styles.row}>
       <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/manual-expense')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>직접 입력</Text></Pressable>
       <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/entry-form')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>일정 · 할 일 입력</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/calendar')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>캘린더</Text></Pressable>
       {!!editor.draft.fields.text && <Pressable accessibilityRole="button" disabled={disabled} style={styles.secondary}
         onPress={discard}><Text style={styles.secondaryText}>초안 비우기</Text></Pressable>}
     </View>

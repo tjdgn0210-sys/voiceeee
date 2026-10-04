@@ -15,6 +15,7 @@ import { useSettings } from '../settings/settings-context';
 import { useIsLoggedIn } from '../settings/use-is-logged-in';
 import { ChipGroup, FieldInput, SegmentControl, SwitchRow } from './form-controls';
 import { PickerField } from './picker-field';
+import { leaveScreen } from './leave';
 import { usePlanner } from './planner-context';
 
 type EntryType = 'event' | 'task';
@@ -81,7 +82,7 @@ export function EntryFormScreen() {
             <View style={styles.card}>
               <Text style={styles.heading}>찾을 수 없어요</Text>
               <Text style={styles.muted}>이미 삭제되었거나 이 기기에 없는 항목이에요.</Text>
-              <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.secondary}><Text style={styles.secondaryText}>돌아가기</Text></Pressable>
+              <Pressable accessibilityRole="button" onPress={() => leaveScreen()} style={styles.secondary}><Text style={styles.secondaryText}>돌아가기</Text></Pressable>
             </View>
           ) : type === 'event' ? (
             <EventFormBody key={`event-${loaded.event?.updatedAt ?? 'new'}`} existing={loaded.event} reminders={loaded.reminders} initialTitle={params.title} initialDate={params.date} />
@@ -103,7 +104,7 @@ function SavedWithWarnings({ warnings }: { warnings: string[] }) {
       <View accessibilityRole="alert" style={styles.banner}>
         {warnings.map(warning => <Text key={warning} style={styles.bannerText}>• {warning}</Text>)}
       </View>
-      <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.button}><Text style={styles.buttonText}>확인</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => leaveScreen()} style={styles.button}><Text style={styles.buttonText}>확인</Text></Pressable>
     </View>
   );
 }
@@ -135,7 +136,7 @@ function EventFormBody({ existing, reminders, initialTitle, initialDate }: { exi
       if (result.status === 'INVALID') setErrors(result.errors);
       else if (result.status === 'FAILED') setMessage(result.message);
       else if (result.warnings.length) setWarnings(result.warnings);
-      else router.back();
+      else leaveScreen();
     } catch {
       setMessage('저장을 확인하지 못했어요. 입력한 내용은 그대로 있어요. 다시 시도해 주세요');
     } finally { busy.current = false; setSaving(false); }
@@ -164,7 +165,7 @@ function EventFormBody({ existing, reminders, initialTitle, initialDate }: { exi
       </View>
       {exact && (
         <View style={styles.row}>
-          <PickerField kind="time" label="종료 시각 (선택)" value={form.endTime || form.time} disabled={saving} error={errors.endTime} onChange={endTime => change({ endTime })} />
+          <PickerField kind="time" label="종료 시각 (선택)" value={form.endTime} emptyText="정하지 않음" pickerStart={form.time} disabled={saving} error={errors.endTime} onChange={endTime => change({ endTime })} />
           {!!form.endTime && (
             <Pressable accessibilityRole="button" accessibilityLabel="종료 시각 지우기" onPress={() => change({ endTime: '' })} style={styles.linkButton}>
               <Text style={styles.linkText}>종료 시각 지우기</Text>
@@ -205,7 +206,7 @@ function EventFormBody({ existing, reminders, initialTitle, initialDate }: { exi
         style={[styles.button, saving && styles.disabled]}>
         <Text style={styles.buttonText}>{saving ? '저장 중…' : '저장'}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" disabled={saving} onPress={() => router.back()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
     </View>
   );
 }
@@ -233,7 +234,7 @@ function TaskFormBody({ existing, reminders, initialTitle, initialDate }: { exis
       if (result.status === 'INVALID') setErrors(result.errors);
       else if (result.status === 'FAILED') setMessage(result.message);
       else if (result.warnings.length) setWarnings(result.warnings);
-      else router.back();
+      else leaveScreen();
     } catch {
       setMessage('저장을 확인하지 못했어요. 입력한 내용은 그대로 있어요. 다시 시도해 주세요');
     } finally { busy.current = false; setSaving(false); }
@@ -275,7 +276,7 @@ function TaskFormBody({ existing, reminders, initialTitle, initialDate }: { exis
         style={[styles.button, saving && styles.disabled]}>
         <Text style={styles.buttonText}>{saving ? '저장 중…' : '저장'}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" disabled={saving} onPress={() => router.back()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
     </View>
   );
 }

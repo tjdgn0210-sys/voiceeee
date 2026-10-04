@@ -7,8 +7,12 @@ import { useExpenseStyles } from '../capture/use-expense-styles';
 export interface PickerFieldProps {
   kind: 'date' | 'time';
   label: string;
-  /** YYYY-MM-DD or HH:mm. */
+  /** YYYY-MM-DD or HH:mm; empty when nothing is chosen (optional fields). */
   value: string;
+  /** Shown instead of an empty value, e.g. "정하지 않음". */
+  emptyText?: string;
+  /** Where the picker opens when the value is empty. */
+  pickerStart?: string;
   onChange(value: string): void;
   disabled?: boolean;
   error?: string;
@@ -22,7 +26,7 @@ function toPickerDate(kind: PickerFieldProps['kind'], value: string): Date {
 }
 
 /** Date or time chosen with the system picker (native). The web build uses typed text, see picker-field.web.tsx. */
-export function PickerField({ kind, label, value, onChange, disabled, error }: PickerFieldProps) {
+export function PickerField({ kind, label, value, emptyText, pickerStart, onChange, disabled, error }: PickerFieldProps) {
   const styles = useExpenseStyles();
   const [open, setOpen] = useState(false);
   function change(event: DateTimePickerEvent, selected?: Date) {
@@ -37,15 +41,15 @@ export function PickerField({ kind, label, value, onChange, disabled, error }: P
       <Text style={styles.fieldLabel}>{label}</Text>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${label} ${value}, 바꾸기`}
+        accessibilityLabel={`${label} ${value || emptyText || '비어 있음'}, 바꾸기`}
         disabled={disabled}
         onPress={() => setOpen(true)}
         style={[styles.selectionButton, error ? { borderColor: palette.danger, borderWidth: 2 } : null]}>
-        <Text style={styles.selectionText}>{value}</Text>
+        <Text style={styles.selectionText}>{value || emptyText || ''}</Text>
       </Pressable>
       {open && (
         <DateTimePicker
-          value={toPickerDate(kind, value)}
+          value={toPickerDate(kind, value || pickerStart || (kind === 'date' ? '2000-01-01' : '09:00'))}
           mode={kind}
           display={Platform.OS === 'ios' ? 'compact' : 'default'}
           is24Hour

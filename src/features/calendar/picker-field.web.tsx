@@ -4,7 +4,7 @@ import { useExpenseStyles } from '../capture/use-expense-styles';
 import type { PickerFieldProps } from './picker-field';
 
 /** Web has no native picker: the value is typed as text (the same format the form validates). */
-export function PickerField({ kind, label, value, onChange, disabled, error }: PickerFieldProps) {
+export function PickerField({ kind, label, value, emptyText, onChange, disabled, error }: PickerFieldProps) {
   const styles = useExpenseStyles();
   return (
     <View style={[styles.field, { flexGrow: 1, flexBasis: 0 }]}>
@@ -14,7 +14,7 @@ export function PickerField({ kind, label, value, onChange, disabled, error }: P
         editable={!disabled}
         value={value}
         maxLength={kind === 'date' ? 10 : 5}
-        placeholder={kind === 'date' ? '2026-10-04' : '15:00'}
+        placeholder={emptyText ?? (kind === 'date' ? '2026-10-04' : '15:00')}
         placeholderTextColor={palette.placeholder}
         onChangeText={onChange}
         style={[styles.input, error ? { borderColor: palette.danger, borderWidth: 2 } : null]}

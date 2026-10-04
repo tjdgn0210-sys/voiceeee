@@ -28,6 +28,8 @@ export default function RootLayout() {
                     <Stack.Screen name="expense" options={{ title: '지출 상세' }} />
                     <Stack.Screen name="manual-expense" options={{ title: '지출 직접 입력' }} />
                     <Stack.Screen name="entry-form" options={{ title: '새로 적기' }} />
+                    <Stack.Screen name="calendar" options={{ title: '캘린더' }} />
+                    <Stack.Screen name="event" options={{ title: '일정' }} />
                     <Stack.Protected guard={false}>
                       <Stack.Screen name="explore" />
                     </Stack.Protected>
