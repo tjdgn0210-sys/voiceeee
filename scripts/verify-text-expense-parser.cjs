@@ -115,53 +115,26 @@ async function main() {
     console.log('PASS: TEXT proposal persists through the existing executor/SQLite/ActionLog path and existing Undo reverses it.');
 
 
-    // Exercise the production composer: analyzing never persists money; confirmation is single-flight.
-    const jsx = (type, props) => ({ type, props });
-    const states = [], refs = [];
-    let stateIndex = 0, refIndex = 0;
-    const draft = { draft: { actionId: nextId(), capturedAt: now, inputMethod: 'TEXT', fields: { text: '점심 7000원' } },
-      ready: true, status: 'saved', persist: async () => {}, clear: async () => {}, update() {}, replace() {} };
-    const mocks = {
-      react: { useCallback: fn => fn, useRef: value => refs[refIndex] ?? (refs[refIndex++] = { current: value }),
-        useState: value => { const index = stateIndex++; if (!(index in states)) states[index] = typeof value === 'function' ? value() : value;
-          return [states[index], next => { states[index] = typeof next === 'function' ? next(states[index]) : next; }]; } },
-      'react/jsx-runtime': { jsx, jsxs: jsx, Fragment: 'Fragment' },
-      'expo-router': { router: { push() {} }, useFocusEffect() {} },
-      'react-native': { AppState: {}, Pressable: 'Pressable', Text: 'Text', TextInput: 'TextInput', View: 'View' },
-      './expense-context': { useExpenses: () => expenses }, './expense-styles': { expenseStyles: {} },
-      './interpretation-context': { useInterpretCapture: () => load('src/application/proposals/interpret-capture-input.ts').createCaptureInterpretationService() },
-      './voice-capture-context': { useVoiceCapture: () => ({ start() {}, stop() {}, cancel() {} }) },
-      './use-persistent-draft': { usePersistentDraft: () => draft }, './draft-status': { DraftStatus: 'DraftStatus' },
-      '../../application/proposals/capture-parser-router': { createCaptureParserInput, routeCaptureInput },
-    };
-    // Stable refs across simulated rerenders.
-    mocks.react.useRef = value => { const index = refIndex++; return refs[index] ??= { current: value }; };
-    const file = path.join(root, 'src/features/capture/capture-composer.tsx');
-    const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-    const mod = { exports: {} };
-    vm.runInThisContext(`(function(require,module,exports){${code}\n})`)(name => { assert(name in mocks, name); return mocks[name]; }, mod, mod.exports);
-    function render() { stateIndex = 0; refIndex = 0; return mod.exports.CaptureComposer({ onSaved() {} }); }
-    function content(node) { return typeof node === 'string' ? node : [node?.props?.children].flat(Infinity).filter(Boolean).map(content).join(''); }
-    function button(node, name) {
-      if (!node || typeof node !== 'object') return null;
-      if (node.type === 'Pressable' && content(node) === name) return node;
-      for (const child of [node.props?.children].flat(Infinity)) { const found = button(child, name); if (found) return found; }
-      return null;
-    }
+    // The capture flow (used by the composer): a local result is saved once, unsafe input is never saved.
+    const { createCaptureFlow } = load('src/application/capture/capture-flow.ts');
+    const { createUndoBar } = load('src/application/undo/undo-bar.ts');
+    const flowBar = createUndoBar({ setTimer: () => 1, clearTimer: () => {} });
+    const flow = createCaptureFlow({
+      save: p => expenses.save(p), recentExpenses: limit => transactions.listRecent(limit), undo: undoId => expenses.undo(undoId), undoBar: flowBar, now: () => now,
+    });
     const count = () => db.prepare('SELECT count(*) AS n FROM transactions').get().n;
     const before = count();
-    await button(render(), '입력 내용 확인').props.onPress();
-    assert.equal(count(), before);
-    const confirm = button(render(), '이 내용으로 저장').props.onPress;
-    await Promise.all([confirm(), confirm()]);
-    assert.equal(count(), before + 1);
+    const first = routeCaptureInput(createCaptureParserInput('점심 7000원', nextId(), 'TEXT', now));
+    assert.equal(first.status, 'PARSED');
+    const results = await Promise.all([flow.handleParsed(first.proposal, 'LOCAL'), flow.handleParsed(first.proposal, 'LOCAL')]);
+    assert.ok(results.some(item => item.status === 'SAVED'));
+    assert.equal(count() - before, 1, 'the same proposal twice writes one record');
     for (const text of ['점심 7000원 안 썼어', '예산 7000원', '7000원 쓸 예정이야', '오늘 점심 먹었어', '내일 3시에 치과 예약']) {
-      draft.draft = { ...draft.draft, actionId: nextId(), fields: { text } };
-      await button(render(), '입력 내용 확인').props.onPress();
-      assert.equal(button(render(), '이 내용으로 저장'), null);
+      const routed = routeCaptureInput(createCaptureParserInput(text, nextId(), 'TEXT', now));
+      assert.notEqual(routed.status, 'PARSED', text);
     }
-    assert.equal(count(), before + 1);
-    console.log('PASS: actual composer requires review, rejects unsafe input, and prevents double confirmation.');
+    assert.equal(count() - before, 1);
+    console.log('PASS: capture flow saves a local result once and unsafe input never reaches storage.');
 
   } finally {
     db.close();

@@ -13,7 +13,6 @@ import { useExpenses } from '../capture/expense-context';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 import { ExpenseRow } from '../money/expenses-screen';
 import { useIsLoggedIn } from '../settings/use-is-logged-in';
-import { ExpenseUndoFeedback } from './expense-undo-feedback';
 
 const TODAY_EVENT_LIMIT = 4;
 const RECENT_EXPENSE_LIMIT = 3;
@@ -61,7 +60,6 @@ export function HomeScreen() {
           <Text style={styles.bannerText}>로그인하면 앱을 지워도 기록이 안전해요.</Text>
         </View>
       )}
-      <ExpenseUndoFeedback refreshKey={attempt} onResult={refresh} />
       <CaptureComposer onSaved={refresh} />
 
       <View style={styles.field}>

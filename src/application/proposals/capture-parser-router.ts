@@ -20,6 +20,9 @@ export type CaptureParserResult =
   | { status: 'AI_REQUIRED'; message: string }
   | { status: 'UNSUPPORTED'; message: string };
 
+/** Words that make a sentence a grouped expense (blueprint 4.5): one total for several items. The local parser never handles these. */
+export const TOTAL_WORD_RE = /(?:총|합쳐서|다\s*해서|전부\s*해서|모두)/u;
+
 const aiRequiredMessage = '이 문장은 조금 더 복잡해서 아직 자동 처리할 수 없어요.';
 const unsupportedMessage = '이 요청은 아직 지원하지 않아요.';
 
@@ -66,7 +69,7 @@ export function routeCaptureInput(input: CaptureParserInput): CaptureParserResul
 
   // A simple parse remains local only when no unsupported date or compound context was discarded.
   if (local.status === 'PARSED') {
-    if (hasMoneyAmount(text) && needsBroaderExpenseParsing(text)) {
+    if (hasMoneyAmount(text) && (needsBroaderExpenseParsing(text) || TOTAL_WORD_RE.test(text))) {
       return { status: 'AI_REQUIRED', message: aiRequiredMessage };
     }
     return { ...local, proposal: { ...local.proposal, inputMethod: input.inputMethod } };

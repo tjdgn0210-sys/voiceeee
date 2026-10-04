@@ -329,41 +329,25 @@ async function main() {
     assert.equal(createManualExpenses(undoDeps).feedback(),null); // Restart has no Undo evidence.
     console.log('PASS: Undo soft deletion, separate linked evidence, expiry/boundary, missing/modified/duplicate targets, session reset and mutation/log/commit rollback.');
 
-    // Invoke the actual UI button callback twice before a React rerender. Stub only
-    // rendering/hooks/native surfaces; the application and SQLite remain real.
+    // The undo bar (the only Undo surface) runs one reversal even when pressed twice before a rerender.
+    const { createUndoBar } = load('src/application/undo/undo-bar.ts');
     const uiRecord = await newUndoTarget();
-    const jsx = (type,props) => ({type,props});
-    const mocks = {
-      react: {useCallback:fn=>fn,useRef:value=>({current:value}),useState:value=>[typeof value==='function'?value():value,()=>{}]},
-      'react/jsx-runtime': {jsx,jsxs:jsx,Fragment:'Fragment'},
-      'expo-router': {useFocusEffect:()=>{}},
-      'react-native': {AppState:{},Pressable:'Pressable',Text:'Text',View:'View'},
-      '../capture/expense-context': {useExpenses:()=>undoSession},
-      '../capture/expense-styles': {expenseStyles:{}},
-    };
-    const uiFile = path.join(root,'src/features/home/expense-undo-feedback.tsx');
-    const uiCode = ts.transpileModule(fs.readFileSync(uiFile,'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
-    const uiModule = {exports:{}};
-    vm.runInThisContext(`(function(require,module,exports){${uiCode}\n})`)(name=>{assert(name in mocks,name);return mocks[name];},uiModule,uiModule.exports);
-    let refreshes = 0;
-    const tree = uiModule.exports.ExpenseUndoFeedback({onResult:()=>refreshes++});
-    function button(node) {
-      if (!node || typeof node!=='object') return null;
-      if (node.type==='Pressable') return node;
-      for (const child of [node.props?.children].flat(Infinity)) {const match=button(child);if(match)return match;}
-      return null;
-    }
-    const press = button(tree).props.onPress;
+    const bar = createUndoBar({ setTimer: () => 1, clearTimer: () => {} });
+    bar.show({ label: 'undo', undo: () => undoSession.undo(uiRecord.undoId) });
     const beforeTaps = counts();
-    await Promise.all([press(),press()]);
-    assert.equal(refreshes,1);
+    await Promise.all([bar.run(), bar.run()]);
     assert.equal(counts().logs,beforeTaps.logs+1);
+    assert.equal(bar.getState().status,'DONE');
     assert.equal(await transactions.findById(uiRecord.affectedEntityId),null);
-    assert.equal(button(uiModule.exports.ExpenseUndoFeedback({onResult:()=>{}})),null);
+    await bar.run();
+    assert.equal(counts().logs,beforeTaps.logs+1,'a finished undo bar does nothing when pressed again');
     await newUndoTarget();
     undoNow = '2026-09-28T02:01:01.000Z';
-    assert.equal(button(uiModule.exports.ExpenseUndoFeedback({onResult:()=>{}})),null);
-    console.log('PASS: actual Undo button handler rejects rapid duplicate taps, refreshes once, and renders no Undo button after success/expiry.');
+    const late = createUndoBar({ setTimer: () => 1, clearTimer: () => {} });
+    late.show({ label: 'late', undo: () => undoSession.undo(undoSession.feedback().undoId) });
+    await late.run();
+    assert.equal(late.getState().status,'FAILED','after the window the bar reports that undo is no longer possible');
+    console.log('PASS: undo bar rejects rapid duplicate taps, reverses once, and reports an expired window.');
   } finally {db.close();}
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

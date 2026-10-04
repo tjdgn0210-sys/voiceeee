@@ -13,7 +13,7 @@ export interface VoiceCaptureCallbacks {
   onMessage?(message: string): void;
   onSaved?(): void;
   onTranscript?(transcript: string): void | Promise<void>;
-  onReview?(proposal: CreateTransactionProposal, capturedAt: string): void | Promise<void>;
+  onReview?(proposal: CreateTransactionProposal, capturedAt: string, source: 'LOCAL' | 'AI'): void | Promise<void>;
 }
 
 export interface VoiceExpenseCaptureDependencies {
@@ -76,7 +76,7 @@ export function createVoiceExpenseCapture(dependencies: VoiceExpenseCaptureDepen
         return;
       }
       if (activeCallbacks.onReview) {
-        await activeCallbacks.onReview(result.proposal, input.now);
+        await activeCallbacks.onReview(result.proposal, input.now, result.source);
         return;
       }
       const saved = await dependencies.save(result.proposal);
