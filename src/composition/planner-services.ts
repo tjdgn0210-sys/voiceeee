@@ -2,6 +2,7 @@ import { randomUUID } from 'expo-crypto';
 import { createExpoExportSink } from '../adapters/export/expo-file-sharing';
 import { createExpoNotificationAdapter } from '../adapters/notifications/expo-notifications-adapter';
 import { createExportService, type ExportService } from '../application/export/export-service';
+import { createLocalDataReset, type LocalDataReset } from '../application/reset/local-data-reset';
 import type { NotificationAdapter } from '../application/notifications/notification-adapter';
 import { createReminderSync, type ReminderSync } from '../application/notifications/reminder-sync';
 import { createPlannerServices, type PlannerServices } from '../application/planner/planner-services';
@@ -9,6 +10,7 @@ import { deviceTimeZone } from '../application/planner/zoned-time';
 import { createSettingsService } from '../application/settings/app-settings';
 import type { UndoBar } from '../application/undo/undo-bar';
 import { getDatabase } from '../database/database';
+import { createSqliteLocalDataStore } from '../database/local-data-store';
 import { createSqliteEventRepository } from '../database/repositories/sqlite-event-repository';
 import { createSqliteReminderRepository } from '../database/repositories/sqlite-reminder-repository';
 import { createSqliteTransactionRepository } from '../database/repositories/sqlite-transaction-repository';
@@ -24,6 +26,7 @@ export interface PlannerComposition {
   reminderSync: ReminderSync;
   notificationAdapter: NotificationAdapter;
   exportService: ExportService;
+  localDataReset: LocalDataReset;
 }
 
 export async function initializePlannerServices(undoBar: UndoBar): Promise<PlannerComposition> {
@@ -49,5 +52,7 @@ export async function initializePlannerServices(undoBar: UndoBar): Promise<Plann
   const exportService = createExportService({
     transactions: createSqliteTransactionRepository(database), events, reminders, sink: createExpoExportSink(), now, timezone: deviceTimeZone,
   });
-  return { planner, reminderSync, notificationAdapter, exportService };
+  // After the reminders are gone the system's pending notifications must go too.
+  const localDataReset = createLocalDataReset({ store: createSqliteLocalDataStore(database), afterReset: async () => { await reminderSync.sync(); } });
+  return { planner, reminderSync, notificationAdapter, exportService, localDataReset };
 }

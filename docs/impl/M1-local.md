@@ -178,6 +178,7 @@
 - 로그인이 필요한 섹션(내 프로필 · 구독 · 공개 범위 · 보내기 · 친구 · 계정)은 M2 이후. 게스트 화면에 로그인 안내 한 줄.
 - 초기화 (c)와 같은 위험 동작은 빨간색 버튼 + 2단계 확인(단어 입력 또는 길게 누르기, 3.7 · 11.3).
 - 설정 화면이 알림 우선순위에 쓰는 값(`allOn`, `ownOn`, `ownDefault`, `lockscreenShowTitle`)은 `settings` 테이블에 저장하고 M2에서 백업 대상이 된다.
+- 구현 메모(2026-10-04): 화면 `features/settings/settings-screen.tsx`와 구역 `notification-settings.tsx`(전체 · 내 일정 · 기본 알림 · 잠금 화면 제목 · 권한 안내, 바꿀 때마다 저장 → 시스템 알림 동기화, "모든 알림"이 꺼지면 아래 항목이 비활성 + 이유 문구), `reset-section.tsx`(초기화 (c): 빨간 버튼 → 확인 패널 → **"삭제" 입력** 후에만 활성, 게스트 문구), `about-section.tsx`, `licenses-screen.tsx`(경로 `/licenses`, `scripts/generate-licenses.cjs`가 `package.json` 직접 의존성으로 `src/constants/open-source-licenses.ts` 생성), 초기화 로직 `application/reset/local-data-reset.ts` + `database/local-data-store.ts`(한 트랜잭션으로 8개 표를 비움), 시험 `scripts/verify-settings-screen.cjs`. ① **초기화는 설정까지 지우되 첫 실행 화면은 다시 보이지 않게** `onboardingDone`만 남긴다(D-5의 "개인 기록 + 설정" 범위). 액션 기록(`action_logs`)과 임시 초안도 함께 지운다. ② **이용약관 · 개인정보 처리방침 · 문의하기는 주소가 없어 행을 숨겼다**: 앱 소유자가 `.env`의 `EXPO_PUBLIC_TERMS_URL` · `EXPO_PUBLIC_PRIVACY_URL` · `EXPO_PUBLIC_CONTACT_EMAIL`을 채우면 행이 나타난다(예시는 `.env.example`). 주소를 정해 주셔야 한다 — 앱 소유자 결정 필요. ③ 오픈소스 라이선스는 직접 의존성 30개의 이름 · 버전 · 라이선스 이름만 보인다(간접 의존성과 라이선스 전문은 M6 몫). ④ 로그인이 필요한 구역(프로필 · 구독 · 공개 범위 · 보내기 · 친구 · 계정)은 만들지 않았고 로그인 안내 한 줄만 둔다.
 
 ### M1-15 지출 화면 보강 (E1 · E2, 기존 `features/money`)
 - 월 합계(받은 지출 포함 여부 반영은 M4), 카테고리별 합계, 목록. `include_in_total`이 false인 지출은 합계에서 제외하되 목록에는 보임("합계에서 제외" 표시).

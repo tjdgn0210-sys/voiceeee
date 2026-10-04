@@ -35,5 +35,6 @@ test('the settings screen shows the blocked-notification notice with a way to th
   const notice = read('src/features/settings/notification-permission-notice.tsx');
   assert.match(notice, /permission === 'BLOCKED'/);
   assert.match(notice, /openSystemSettings/);
-  assert.match(read('src/features/settings/settings-screen.tsx'), /NotificationPermissionNotice/);
+  assert.match(read('src/features/settings/notification-settings.tsx'), /<NotificationPermissionNotice \/>/);
+  assert.match(read('src/features/settings/settings-screen.tsx'), /<NotificationSettings \/>/);
 });
