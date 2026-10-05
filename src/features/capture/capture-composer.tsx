@@ -110,10 +110,10 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
   }
   const disabled = working || active || !editor.ready;
   const dateText = (iso: string) => new Date(iso).toLocaleString('ko-KR');
-  return <View style={styles.softCard}>
+  return <View style={styles.card}>
     <Text style={styles.eyebrow}>빠른 기록</Text>
-    <Text style={styles.heading}>지출을 말하거나 적어 주세요.</Text>
-    <Text style={styles.muted}>예: “점심 7000원 썼어” · 바로 저장하고, 아래에서 잠시 되돌릴 수 있어요.</Text>
+    <Text style={styles.heading}>말하거나 적어서 기록하세요.</Text>
+    <Text style={styles.muted}>예: “점심 7000원 썼어” · 저장한 뒤 [되돌리기]로 취소할 수 있어요.</Text>
     <Pressable accessibilityRole="button" accessibilityState={{ disabled: working || !editor.ready || (active && state !== 'LISTENING'), busy: active && state !== 'LISTENING' }}
       disabled={working || !editor.ready || (active && state !== 'LISTENING')} onPress={state === 'LISTENING' ? () => voice.stop() : startVoice}
       style={({ pressed }) => [styles.button, styles.voiceButton, pressed && styles.pressed, (working || !editor.ready) && styles.disabled]}>
@@ -121,7 +121,7 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
     </Pressable>
     {active && <Pressable accessibilityRole="button" onPress={() => voice.cancel()} style={styles.secondary}><Text style={styles.secondaryText}>음성 입력 취소</Text></Pressable>}
     {partial !== '' && <Text style={styles.text} accessibilityLiveRegion="polite">{partial}</Text>}
-    <Text style={styles.text}>문장으로 입력</Text>
+    <Text style={styles.fieldLabel}>문장으로 입력</Text>
     <TextInput accessibilityLabel="지출 문장 입력" placeholder="점심 7000원 썼어" placeholderTextColor={palette.placeholder} maxLength={1000}
       value={editor.draft.fields.text ?? ''} editable={!disabled} style={styles.input} returnKeyType="done" onSubmitEditing={analyze}
       onChangeText={text => { editor.update({ text }, 'TEXT'); setShown(null); setPending(null); setMessage(null); }} />
@@ -129,29 +129,31 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
     <Pressable accessibilityRole="button" disabled={disabled || !editor.draft.fields.text?.trim()} accessibilityState={{ disabled: disabled || !editor.draft.fields.text?.trim(), busy: working }}
       onPress={analyze} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>{working ? '입력 처리 중…' : '기록하기'}</Text></Pressable>
 
-    {pending && <View accessibilityRole="alert" style={styles.banner}>
-      <Text style={[styles.bannerText, { fontWeight: '700' }]}>처리 대기 중인 문장이에요</Text>
-      <Text style={styles.bannerText}>{pending} 문장은 이 기기에 보관했어요. 연결되면 직접 [다시 처리]를 눌러 주세요. 자동으로 실행하지 않아요.</Text>
+    {pending && <View accessibilityRole="alert" style={styles.requestCard}>
+      <Text style={styles.heading}>처리 대기 중인 문장이에요</Text>
+      <Text style={styles.muted}>{pending} 문장은 이 기기에 보관했어요. 연결되면 직접 [다시 처리]를 눌러 주세요. 자동으로 실행하지 않아요.</Text>
       <Pressable accessibilityRole="button" accessibilityState={{ disabled, busy: working }} disabled={disabled} onPress={analyze} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>다시 처리</Text></Pressable>
     </View>}
 
-    {shown?.kind === 'SAVED' && <View accessibilityLiveRegion="polite" style={[styles.softCard, styles.review]}>
+    {shown?.kind === 'SAVED' && <View accessibilityLiveRegion="polite" style={styles.review}>
       <Text style={styles.eyebrow}>저장했어요</Text>
       <Text style={styles.amount}>{shown.proposal.payload.amount?.toLocaleString('ko-KR')}원</Text>
       <Text style={styles.text}>{shown.proposal.payload.category ?? '미분류'} · {shown.proposal.payload.memo ?? '메모 없음'}</Text>
       <Text style={styles.muted}>{dateText(shown.proposal.payload.occurredAt!)} · 지출</Text>
       <Text style={styles.muted}>잘못 들었다면 화면 아래의 [되돌리기]를 눌러요.</Text>
-      <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/expense', params: { id: shown.transactionId } })} style={styles.secondary}><Text style={styles.secondaryText}>자세히 보기 · 수정</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/expense', params: { id: shown.transactionId } })} style={styles.linkButton}><Text style={styles.linkText}>자세히 보기 · 수정</Text></Pressable>
     </View>}
 
-    {shown?.kind === 'DUPLICATE' && <View accessibilityRole="alert" style={styles.banner}>
-      <Text style={[styles.bannerText, { fontWeight: '700' }]}>같은 기록이 방금 있어요</Text>
-      <Text style={styles.bannerText}>{shown.proposal.payload.amount?.toLocaleString('ko-KR')}원{shown.proposal.payload.memo ? ` · ${shown.proposal.payload.memo}` : ''}을(를) 방금 저장했어요. 또 저장할까요?</Text>
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: working, busy: working }} disabled={working} onPress={saveConfirmed} style={[styles.button, working && styles.disabled]}><Text style={styles.buttonText}>{working ? '저장 중…' : '또 저장'}</Text></Pressable>
-      <Pressable accessibilityRole="button" disabled={working} onPress={() => setShown(null)} style={styles.secondary}><Text style={styles.secondaryText}>저장 안 함</Text></Pressable>
+    {shown?.kind === 'DUPLICATE' && <View accessibilityRole="alert" style={styles.requestCard}>
+      <Text style={styles.heading}>같은 기록이 방금 있어요</Text>
+      <Text style={styles.muted}>{shown.proposal.payload.amount?.toLocaleString('ko-KR')}원{shown.proposal.payload.memo ? ` · ${shown.proposal.payload.memo}` : ''}을(를) 방금 저장했어요. 또 저장할까요?</Text>
+      <View style={styles.buttonRow}>
+        <Pressable accessibilityRole="button" accessibilityState={{ disabled: working, busy: working }} disabled={working} onPress={saveConfirmed} style={[styles.smallButton, working && styles.disabled]}><Text style={styles.smallButtonText}>{working ? '저장 중…' : '또 저장'}</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={working} onPress={() => setShown(null)} style={styles.smallSecondary}><Text style={styles.smallSecondaryText}>저장 안 함</Text></Pressable>
+      </View>
     </View>}
 
-    {shown?.kind === 'REVIEW' && <View style={[styles.softCard, styles.review]}>
+    {shown?.kind === 'REVIEW' && <View style={styles.review}>
       <Text style={styles.heading}>이 내용으로 기록할까요?</Text>
       <Text style={styles.amount}>{shown.proposal.payload.amount?.toLocaleString('ko-KR')}원</Text>
       <Text style={styles.text}>{shown.proposal.payload.category ?? '미분류'} · {shown.proposal.payload.memo ?? '메모 없음'}</Text>
@@ -161,12 +163,15 @@ export function CaptureComposer({ onSaved }: { onSaved(): void }) {
     </View>}
 
     {message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
-    <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/ai-settings')} style={styles.secondary}><Text style={styles.secondaryText}>AI 연결 설정</Text></Pressable>
-    <View style={styles.row}>
-      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/manual-expense')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>지출 직접 입력</Text></Pressable>
-      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/entry-form')} style={[styles.secondary, disabled && styles.disabled]}><Text style={styles.secondaryText}>일정 · 할 일 입력</Text></Pressable>
-      {!!editor.draft.fields.text && <Pressable accessibilityRole="button" disabled={disabled} style={styles.secondary}
-        onPress={discard}><Text style={styles.secondaryText}>초안 비우기</Text></Pressable>}
+
+    {/* Secondary actions are text links under a thin line. */}
+    <View style={styles.divider} />
+    <View style={styles.linkRow}>
+      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/manual-expense')} style={[styles.linkButton, disabled && styles.disabled]}><Text style={styles.linkText}>지출 직접 입력</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/entry-form')} style={[styles.linkButton, disabled && styles.disabled]}><Text style={styles.linkText}>일정 · 할 일 입력</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={disabled} onPress={() => router.push('/ai-settings')} style={styles.linkButton}><Text style={styles.linkText}>AI 연결 설정</Text></Pressable>
+      {!!editor.draft.fields.text && <Pressable accessibilityRole="button" disabled={disabled} style={styles.linkButton}
+        onPress={discard}><Text style={styles.linkText}>초안 비우기</Text></Pressable>}
     </View>
   </View>;
 }

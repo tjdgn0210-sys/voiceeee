@@ -77,11 +77,12 @@ test('selectable and switchable controls expose their state', () => {
   assert.match(controls, /accessibilityRole="radio"[\s\S]*?accessibilityState=\{\{ selected/);
   assert.match(controls, /accessibilityRole="checkbox"[\s\S]*?accessibilityState=\{\{ checked: isSelected/);
   assert.match(controls, /accessibilityRole="switch"[\s\S]*?accessibilityState=\{\{ checked: value/);
-  assert.match(controls, /\{value \? '켜짐' : '꺼짐'\}/, 'the switch states its value in words');
+  assert.match(controls, /styles\.toggle, value && styles\.toggleOn/, 'the switch knob moves to the other side when on');
+  assert.match(controls, /aria-checked=\{value\}/);
   assert.match(controls, /\{isSelected \? '✓ ' : ''\}/, 'a selected chip has a mark, not only a colour');
   const calendar = source('src/features/calendar/calendar-screen.tsx');
   assert.match(calendar, /accessibilityState=\{\{ selected: isSelected \}\}/);
-  assert.match(calendar, /borderColor: isSelected \? palette\.primary/, 'the selected day also has a border');
+  assert.match(calendar, /borderColor: isSelected \? palette\.ink/, 'the selected day also has a border');
   assert.match(calendar, /textDecorationLine: isToday \? 'underline'/, 'today is underlined, not only coloured');
   const tab = source('src/components/app-tab-bar.tsx');
   assert.match(tab, /accessibilityState=\{\{ selected: focused \}\}/);

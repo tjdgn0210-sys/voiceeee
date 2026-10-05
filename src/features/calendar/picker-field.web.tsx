@@ -17,7 +17,7 @@ export function PickerField({ kind, label, value, emptyText, onChange, disabled,
         placeholder={emptyText ?? (kind === 'date' ? '2026-10-04' : '15:00')}
         placeholderTextColor={palette.placeholder}
         onChangeText={onChange}
-        style={[styles.input, error ? { borderColor: palette.danger, borderWidth: 2 } : null]}
+        style={styles.input}
       />
       {!!error && <Text accessibilityRole="alert" style={styles.fieldError}>{error}</Text>}
     </View>

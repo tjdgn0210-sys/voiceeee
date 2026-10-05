@@ -17,7 +17,7 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
     <View
       accessibilityRole="tablist"
       style={{
-        flexDirection: 'row', backgroundColor: palette.paper, borderTopWidth: 1, borderTopColor: palette.line,
+        flexDirection: 'row', backgroundColor: palette.canvas, borderTopWidth: 1, borderTopColor: palette.line,
         paddingBottom: insets.bottom, paddingHorizontal: insets.left,
       }}>
       {state.routes.map((route, index) => {
@@ -37,11 +37,16 @@ export function AppTabBar({ state, descriptors, navigation }: BottomTabBarProps)
             aria-selected={focused}
             onPress={onPress}
             style={({ pressed }) => ({
-              flex: 1, minHeight: s.touch + s.space(Spacing.two), alignItems: 'center', justifyContent: 'center',
-              borderTopWidth: 4, borderTopColor: focused ? palette.primary : 'transparent',
+              flex: 1, minHeight: s.touch + s.space(12), alignItems: 'center', justifyContent: 'center',
+              // The selected tab has a bar on top, a filled area and a bold underlined label: not colour alone.
+              borderTopWidth: 3, borderTopColor: focused ? palette.ink : 'transparent',
+              backgroundColor: focused ? palette.reviewFill : 'transparent',
               paddingHorizontal: s.space(Spacing.one), opacity: pressed ? 0.7 : 1,
             })}>
-            <Text style={{ fontSize: s.font(13), textAlign: 'center', color: focused ? palette.primary : palette.muted, fontWeight: focused ? '700' : '500' }}>
+            <Text style={{
+              fontSize: s.font(14), textAlign: 'center', color: focused ? palette.ink : palette.muted,
+              fontWeight: focused ? '800' : '500', textDecorationLine: focused ? 'underline' : 'none',
+            }}>
               {label}
             </Text>
           </Pressable>

@@ -7,11 +7,10 @@ import {
   type CalendarDay, type CalendarIndex,
 } from '../../application/planner/calendar-model';
 import type { PlannerRangeData } from '../../application/planner/planner-services';
-import { addDays } from '../../application/planner/zoned-time';
+import { addDays, weekdayOf } from '../../application/planner/zoned-time';
 import { localDateIn } from '../../application/validator/local-date';
 import type { LocalDate } from '../../domain/common/primitives';
 import type { Task } from '../../domain/task/task';
-import { Radius, Spacing } from '../../constants/theme';
 import { palette } from '../capture/expense-styles';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 import { useScaler } from '../settings/settings-context';
@@ -80,90 +79,98 @@ export function CalendarScreen() {
   const title = view === 'month' ? monthTitle(selected) : weekTitle(selected);
   const day: CalendarDay = index ? dayOrEmpty(index, selected) : { date: selected, events: [], tasks: [] };
 
+  const grid = view === 'month' ? monthGrid(year, month) : [weekDates(selected)];
+  // The grid reaches 12px beyond the card padding so each day cell is wide enough to touch (design .monthRow).
+  const bleed = { marginHorizontal: -s.space(12) };
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={[styles.spread, { justifyContent: 'flex-end' }]}>
-          <View style={styles.row}>
-            {selected !== today && (
-              <Pressable accessibilityRole="button" accessibilityLabel="오늘로 이동" onPress={() => setSelected(today)} style={styles.linkButton}>
-                <Text style={styles.linkText}>오늘</Text>
+        <View style={styles.card}>
+          <View style={styles.spread}>
+            <Text style={styles.sectionTitle} accessibilityRole="header">캘린더</Text>
+            <View style={styles.linkRow}>
+              {selected !== today && (
+                <Pressable accessibilityRole="button" accessibilityLabel="오늘로 이동" onPress={() => setSelected(today)} style={styles.linkButton}>
+                  <Text style={styles.linkText}>오늘</Text>
+                </Pressable>
+              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${dateLabel(selected)}에 새로 적기`}
+                onPress={() => router.push({ pathname: '/entry-form', params: { date: selected } })}
+                style={styles.linkButton}>
+                <Text style={styles.linkText}>추가</Text>
               </Pressable>
-            )}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`${dateLabel(selected)}에 새로 적기`}
-              onPress={() => router.push({ pathname: '/entry-form', params: { date: selected } })}
-              style={[styles.button, { paddingHorizontal: s.space(Spacing.three) }]}>
-              <Text style={styles.buttonText}>+ 새로 적기</Text>
+            </View>
+          </View>
+
+          <SegmentControl<View_> label="보기 방식" options={VIEW_OPTIONS} value={view} onChange={setView} />
+
+          <View style={styles.calNav}>
+            <Pressable accessibilityRole="button" accessibilityLabel={view === 'month' ? '이전 달' : '이전 주'} onPress={() => move(-1)} style={styles.navButton}>
+              <Text accessible={false} style={styles.navText}>‹</Text>
+            </Pressable>
+            <Text style={styles.calLabel} accessibilityRole="header" accessibilityLiveRegion="polite">{title}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={view === 'month' ? '다음 달' : '다음 주'} onPress={() => move(1)} style={styles.navButton}>
+              <Text accessible={false} style={styles.navText}>›</Text>
             </Pressable>
           </View>
-        </View>
 
-        <SegmentControl<View_> label="보기 방식" options={VIEW_OPTIONS} value={view} onChange={setView} />
-
-        <View style={styles.spread}>
-          <Pressable accessibilityRole="button" accessibilityLabel={view === 'month' ? '이전 달' : '이전 주'} onPress={() => move(-1)} style={styles.linkButton}>
-            <Text style={styles.linkText}>‹ 이전</Text>
-          </Pressable>
-          <Text style={styles.sectionTitle} accessibilityRole="header" accessibilityLiveRegion="polite">{title}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={view === 'month' ? '다음 달' : '다음 주'} onPress={() => move(1)} style={styles.linkButton}>
-            <Text style={styles.linkText}>다음 ›</Text>
-          </Pressable>
-        </View>
-
-        <View style={[styles.card, { padding: s.space(Spacing.two), gap: s.space(Spacing.one) }]}>
-          <View style={{ flexDirection: 'row' }}>
-            {WEEKDAY_NAMES.map(name => (
-              <View key={name} style={{ flex: 1, alignItems: 'center', paddingBottom: s.space(Spacing.one) }}>
-                <Text style={[styles.hint, { fontWeight: '700' }]}>{name}</Text>
+          <View style={{ gap: s.space(4) }}>
+            {view === 'month' && (
+              <View style={[{ flexDirection: 'row' }, bleed]}>
+                {WEEKDAY_NAMES.map(name => (
+                  <Text key={name} style={{ flex: 1, textAlign: 'center', fontSize: s.font(12), color: palette.muted }}>{name}</Text>
+                ))}
+              </View>
+            )}
+            {grid.map(week => (
+              <View key={week[0]} style={[{ flexDirection: 'row' }, bleed]}>
+                {week.map(date => (
+                  <DayCell
+                    key={date}
+                    date={date}
+                    variant={view}
+                    inMonth={view === 'week' || date.startsWith(selected.slice(0, 7))}
+                    isToday={date === today}
+                    isSelected={date === selected}
+                    day={index?.days.get(date)}
+                    onPress={() => setSelected(date)}
+                  />
+                ))}
               </View>
             ))}
           </View>
-          {(view === 'month' ? monthGrid(year, month) : [weekDates(selected)]).map(week => (
-            <View key={week[0]} style={{ flexDirection: 'row' }}>
-              {week.map(date => (
-                <DayCell
-                  key={date}
-                  date={date}
-                  inMonth={view === 'week' || date.startsWith(selected.slice(0, 7))}
-                  isToday={date === today}
-                  isSelected={date === selected}
-                  day={index?.days.get(date)}
-                  onPress={() => setSelected(date)}
-                />
-              ))}
-            </View>
-          ))}
-          <Text style={styles.hint}>● 일정 · ■ 할 일</Text>
-        </View>
+          <Text style={styles.muted}>● 일정 · ■ 할 일</Text>
 
-        {status === 'error' ? (
-          <View style={styles.card}>
-            <Text accessibilityRole="alert" style={styles.error}>일정을 불러오지 못했어요.</Text>
-            <Pressable accessibilityRole="button" onPress={() => { setStatus('loading'); reload(); }} style={styles.secondary}>
-              <Text style={styles.secondaryText}>다시 불러오기</Text>
-            </Pressable>
-          </View>
-        ) : status === 'loading' && !index ? (
-          <ActivityIndicator accessibilityLabel="일정 불러오는 중" />
-        ) : (
-          <View style={styles.field}>
-            <Text style={styles.sectionTitle} accessibilityRole="header">{dateLabel(selected)}{selected === today ? ' · 오늘' : ''}</Text>
-            {!!message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
-            {day.events.length === 0 && day.tasks.length === 0 ? (
-              <View style={styles.card}>
-                <Text style={styles.heading}>이 날은 비어 있어요</Text>
-                <Text style={styles.muted}>말하거나 직접 적어서 일정과 할 일을 넣어 보세요.</Text>
-              </View>
-            ) : (
-              <View>
-                {day.events.map(item => <EventRow key={item.event.id} item={item} />)}
-                {day.tasks.map(task => <TaskRow key={task.id} task={task} timezone={timezone} busy={busyTask === task.id} onToggle={toggleTask} />)}
-              </View>
-            )}
-          </View>
-        )}
+          <View style={styles.divider} />
+          {status === 'error' ? (
+            <View style={styles.field}>
+              <Text accessibilityRole="alert" style={styles.error}>일정을 불러오지 못했어요.</Text>
+              <Pressable accessibilityRole="button" onPress={() => { setStatus('loading'); reload(); }} style={styles.secondary}>
+                <Text style={styles.secondaryText}>다시 불러오기</Text>
+              </Pressable>
+            </View>
+          ) : status === 'loading' && !index ? (
+            <ActivityIndicator accessibilityLabel="일정 불러오는 중" color={palette.primary} />
+          ) : (
+            <View style={styles.field}>
+              <Text style={styles.fieldLabel} accessibilityRole="header">{dateLabel(selected)}{selected === today ? ' · 오늘' : ''}</Text>
+              {!!message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
+              {day.events.length === 0 && day.tasks.length === 0 ? (
+                <View style={styles.field}>
+                  <Text style={styles.heading}>이 날은 비어 있어요</Text>
+                  <Text style={styles.muted}>말하거나 직접 적어서 일정과 할 일을 넣어 보세요.</Text>
+                </View>
+              ) : (
+                <View>
+                  {day.events.map(item => <EventRow key={item.event.id} item={item} />)}
+                  {day.tasks.map(task => <TaskRow key={task.id} task={task} timezone={timezone} busy={busyTask === task.id} onToggle={toggleTask} />)}
+                </View>
+              )}
+            </View>
+          )}
+        </View>
 
         {index && index.overdueTasks.length > 0 && (
           <View style={styles.field}>
@@ -182,9 +189,12 @@ export function CalendarScreen() {
   );
 }
 
-/** One day of the grid: the number, and a dot for events and a square for tasks (at most three marks). */
-function DayCell({ date, inMonth, isToday, isSelected, day, onPress }: {
-  date: LocalDate; inMonth: boolean; isToday: boolean; isSelected: boolean; day: CalendarDay | undefined; onPress(): void;
+/**
+ * One day of the grid (design .monthCell / .dayCell): the number, and under it a dot for events and a square for tasks.
+ * The selected day is a filled pill with an ink edge; today is underlined and in the accent colour.
+ */
+function DayCell({ date, variant, inMonth, isToday, isSelected, day, onPress }: {
+  date: LocalDate; variant: 'month' | 'week'; inMonth: boolean; isToday: boolean; isSelected: boolean; day: CalendarDay | undefined; onPress(): void;
 }) {
   const s = useScaler();
   const eventCount = day?.events.length ?? 0;
@@ -194,8 +204,10 @@ function DayCell({ date, inMonth, isToday, isSelected, day, onPress }: {
     ...Array.from({ length: Math.min(eventCount, 2) }, () => 'event' as const),
     ...Array.from({ length: Math.min(taskCount, 3 - Math.min(eventCount, 2)) }, () => 'task' as const),
   ];
-  const mark = s.space(7);
+  const mark = s.space(6);
   const summary = [eventCount ? `일정 ${eventCount}개` : '', taskCount ? `할 일 ${taskCount}개` : ''].filter(Boolean).join(', ') || '비어 있음';
+  const week = variant === 'week';
+  const numberColor = isSelected ? palette.onPrimary : isToday ? palette.primary : inMonth ? palette.ink : palette.muted;
   return (
     <Pressable
       accessibilityRole="button"
@@ -203,19 +215,20 @@ function DayCell({ date, inMonth, isToday, isSelected, day, onPress }: {
       accessibilityState={{ selected: isSelected }}
       onPress={onPress}
       style={{
-        flex: 1, minHeight: s.touch + s.space(Spacing.two), alignItems: 'center', justifyContent: 'flex-start', paddingTop: s.space(Spacing.one),
-        borderRadius: Radius.sm, borderWidth: 2, borderColor: isSelected ? palette.primary : 'transparent',
-        backgroundColor: isSelected ? palette.nowFill : 'transparent',
+        flex: 1, minHeight: week ? Math.max(76, s.space(76)) : Math.max(52, s.space(52)), alignItems: 'center', justifyContent: 'center', gap: s.space(week ? 4 : 3),
+        borderRadius: week ? 22 : 18, borderWidth: 2, borderColor: isSelected ? palette.ink : 'transparent',
+        backgroundColor: isSelected ? palette.primaryFill : 'transparent',
       }}>
+      {week && <Text style={{ fontSize: s.font(12), color: isSelected ? palette.onPrimary : palette.muted }}>{WEEKDAY_NAMES[weekdayOf(date)]}</Text>}
       <Text style={{
-        fontSize: s.font(14), color: inMonth ? palette.ink : palette.muted, fontWeight: isToday ? '700' : '500',
-        textDecorationLine: isToday ? 'underline' : 'none', opacity: inMonth ? 1 : 0.55,
+        fontSize: s.font(week ? 17 : 15), color: numberColor, fontWeight: isToday ? '700' : inMonth || week ? '600' : '400',
+        textDecorationLine: isToday ? 'underline' : 'none',
       }}>{dayNumber}</Text>
-      <View style={{ flexDirection: 'row', gap: s.space(Spacing.half), marginTop: s.space(Spacing.half), minHeight: mark }}>
+      <View style={{ flexDirection: 'row', gap: s.space(3), minHeight: mark }}>
         {marks.map((kind, position) => (
           <View
             key={`${kind}-${position}`}
-            style={{ width: mark, height: mark, borderRadius: kind === 'event' ? mark : 2, backgroundColor: palette.primary }}
+            style={{ width: mark, height: mark, borderRadius: kind === 'event' ? mark : 2, backgroundColor: isSelected ? palette.onPrimary : palette.primary }}
           />
         ))}
       </View>

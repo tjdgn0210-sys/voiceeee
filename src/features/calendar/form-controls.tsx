@@ -12,7 +12,7 @@ export function FieldInput({ label, error, hint, ...input }: TextInputProps & { 
         accessibilityLabel={label}
         placeholderTextColor={palette.placeholder}
         {...input}
-        style={[styles.input, error ? { borderColor: palette.danger, borderWidth: 2 } : null, input.style]}
+        style={[styles.input, input.style]}
       />
       {!!hint && !error && <Text style={styles.hint}>{hint}</Text>}
       {!!error && <Text accessibilityRole="alert" style={styles.fieldError}>{error}</Text>}
@@ -74,7 +74,7 @@ export function ChipGroup<T extends string | number>({ label, options, selected,
   );
 }
 
-/** A switch row: the state is written out ("켜짐" / "꺼짐"), not only coloured. */
+/** A switch row. The knob sits on the right when on and on the left when off, and the state is exposed to screen readers. */
 export function SwitchRow({ title, hint, value, onChange, disabled }: {
   title: string; hint?: string; value: boolean; onChange(value: boolean): void; disabled?: boolean;
 }) {
@@ -88,12 +88,12 @@ export function SwitchRow({ title, hint, value, onChange, disabled }: {
       disabled={disabled}
       onPress={() => onChange(!value)}
       style={styles.switchRow}>
-      <View style={styles.listBody}>
-        <Text style={styles.listTitle}>{title}</Text>
-        {!!hint && <Text style={styles.hint}>{hint}</Text>}
+      <View style={styles.settingMain}>
+        <Text style={styles.settingTitle}>{title}</Text>
+        {!!hint && <Text style={styles.settingHint}>{hint}</Text>}
       </View>
-      <View style={[styles.switchBox, value && styles.switchBoxOn]}>
-        <Text style={[styles.switchText, value && styles.switchTextOn]}>{value ? '켜짐' : '꺼짐'}</Text>
+      <View style={[styles.toggle, value && styles.toggleOn]}>
+        <View style={styles.toggleKnob} />
       </View>
     </Pressable>
   );

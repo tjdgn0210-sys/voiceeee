@@ -85,15 +85,15 @@ export function EventDetailScreen() {
           ) : (
             <>
               <View style={styles.card}>
-                <View accessible accessibilityLabel={`상태 ${EVENT_STATUS_LABELS[lifecycle]}`} style={styles.badge}><Text style={styles.badgeText}>{EVENT_STATUS_LABELS[lifecycle]}</Text></View>
-                <Text style={styles.title} accessibilityRole="header">{event.title}</Text>
-                <Text style={styles.text}>{date ? dateLabel(date) : '날짜 없음'} · {eventTimeLabel(event)}</Text>
-                {!!event.location && <Text style={styles.text}>장소 · {event.location}</Text>}
-                {event.visibility === 'PUBLIC' && <Text style={styles.muted}>친구에게 공개 중</Text>}
-              </View>
-
-              <View style={styles.card}>
-                <Text style={styles.heading} accessibilityRole="header">알림</Text>
+                <View style={{ gap: 10 }}>
+                  <View accessible accessibilityLabel={`상태 ${EVENT_STATUS_LABELS[lifecycle]}`} style={styles.badge}><Text style={styles.badgeText}>{EVENT_STATUS_LABELS[lifecycle]}</Text></View>
+                  <Text style={styles.heading} accessibilityRole="header">{event.title}</Text>
+                  <Text style={styles.text}>{date ? dateLabel(date) : '날짜 없음'} · {eventTimeLabel(event)}</Text>
+                  {!!event.location && <Text style={styles.text}>장소 · {event.location}</Text>}
+                  {event.visibility === 'PUBLIC' && <Text style={styles.muted}>친구에게 공개 중</Text>}
+                </View>
+                <View style={styles.divider} />
+                <Text style={styles.fieldLabel} accessibilityRole="header">알림</Text>
                 {event.kind !== 'EXACT' ? (
                   <Text style={styles.muted}>정확한 시각이 없는 일정이라 알림을 맞출 수 없어요.</Text>
                 ) : live.length === 0 ? (
@@ -124,7 +124,7 @@ export function EventDetailScreen() {
                       const fire = utcToZonedFields(item.fireAt, event.timezone);
                       return (
                         <View key={item.id} style={styles.listRow}>
-                          <View style={styles.listBody}>
+                          <View style={[styles.listBody, { paddingVertical: 8 }]}>
                             <Text style={styles.listTitle}>{item.relativeOffsetMinutes === null ? '직접 지정한 알림' : reminderLabel(item.relativeOffsetMinutes)}</Text>
                             <Text style={styles.listMeta}>{dateLabel(fire.date)} {fire.time}</Text>
                           </View>
@@ -141,6 +141,7 @@ export function EventDetailScreen() {
                     })}
                   </>
                 )}
+                <Text style={styles.muted}>친구에게 보내기는 로그인 후에 쓸 수 있어요.</Text>
               </View>
 
               {!!message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
@@ -149,8 +150,8 @@ export function EventDetailScreen() {
                 accessibilityRole="button"
                 disabled={working}
                 onPress={() => router.push({ pathname: '/entry-form', params: { type: 'event', id: event.id } })}
-                style={[styles.button, working && styles.disabled]}>
-                <Text style={styles.buttonText}>수정</Text>
+                style={[styles.secondary, working && styles.disabled]}>
+                <Text style={styles.secondaryText}>수정</Text>
               </Pressable>
               {(lifecycle === 'UPCOMING' || lifecycle === 'PAST') && event.status !== 'COMPLETED' && (
                 <Pressable
@@ -162,14 +163,13 @@ export function EventDetailScreen() {
                   <Text style={styles.secondaryText}>완료로 표시</Text>
                 </Pressable>
               )}
-              <Text style={styles.hint}>친구에게 보내기는 로그인 후에 쓸 수 있어요.</Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ disabled: working, busy: working }}
                 disabled={working}
                 onPress={() => run(() => planner.deleteEvent(event), true)}
-                style={[styles.secondary, styles.danger, working && styles.disabled]}>
-                <Text style={styles.dangerText}>{working ? '처리 중…' : '삭제'}</Text>
+                style={[styles.linkButton, { alignItems: 'center' }, working && styles.disabled]}>
+                <Text style={styles.dangerLinkText}>{working ? '처리 중…' : '삭제'}</Text>
               </Pressable>
               <Text style={styles.hint}>삭제하면 화면 아래에서 잠시 되돌릴 수 있어요.</Text>
             </>

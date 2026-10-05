@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Platform, Pressable, Text, View } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { palette } from '../capture/expense-styles';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 
 export interface PickerFieldProps {
@@ -44,7 +43,7 @@ export function PickerField({ kind, label, value, emptyText, pickerStart, onChan
         accessibilityLabel={`${label} ${value || emptyText || '비어 있음'}, 바꾸기`}
         disabled={disabled}
         onPress={() => setOpen(true)}
-        style={[styles.selectionButton, error ? { borderColor: palette.danger, borderWidth: 2 } : null]}>
+        style={styles.selectionButton}>
         <Text style={styles.selectionText}>{value || emptyText || ''}</Text>
       </Pressable>
       {open && (

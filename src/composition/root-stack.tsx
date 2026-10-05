@@ -7,7 +7,14 @@ export function RootStack() {
   const { settings } = useSettings();
   const s = useScaler();
   return (
-    <Stack screenOptions={{ headerTitleStyle: { fontSize: s.font(17), color: palette.ink } }}>
+    <Stack
+      screenOptions={{
+        headerShadowVisible: false,
+        headerStyle: { backgroundColor: palette.canvas },
+        headerTintColor: palette.primary,
+        headerTitleStyle: { fontSize: s.font(15), fontWeight: '600', color: palette.ink },
+        contentStyle: { backgroundColor: palette.canvas },
+      }}>
       <Stack.Protected guard={!settings.onboardingDone}>
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
       </Stack.Protected>

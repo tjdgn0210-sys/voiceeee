@@ -194,7 +194,7 @@ function EventFormBody({ existing, reminders, initialTitle, initialDate }: { exi
         </View>
       )}
       {loggedIn && (
-        <SwitchRow title="친구에게 공개" hint="제목 · 시간 · 장소만 보여요" value={form.visibility === 'PUBLIC'} disabled={saving} onChange={on => change({ visibility: on ? 'PUBLIC' : 'PRIVATE' })} />
+        <View style={styles.panelSoft}><SwitchRow title="친구에게 공개" hint="제목 · 시간 · 장소만 보여요" value={form.visibility === 'PUBLIC'} disabled={saving} onChange={on => change({ visibility: on ? 'PUBLIC' : 'PRIVATE' })} /></View>
       )}
       {form.date === today && exact && <Text style={styles.hint}>오늘 일정이에요.</Text>}
       {!!message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
@@ -206,7 +206,7 @@ function EventFormBody({ existing, reminders, initialTitle, initialDate }: { exi
         style={[styles.button, saving && styles.disabled]}>
         <Text style={styles.buttonText}>{saving ? '저장 중…' : '저장'}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={[styles.linkButton, { alignItems: 'center' }]}><Text style={styles.linkText}>취소</Text></Pressable>
     </View>
   );
 }
@@ -244,7 +244,7 @@ function TaskFormBody({ existing, reminders, initialTitle, initialDate }: { exis
   return (
     <View style={styles.formStack}>
       <FieldInput label="제목" value={form.title} maxLength={100} placeholder="서류 제출하기" editable={!saving} error={errors.title} onChangeText={title => change({ title })} />
-      <SwitchRow title="마감 날짜 정하기" hint="정하지 않으면 날짜 없는 할 일로 남아요" value={form.hasDue} disabled={saving} onChange={hasDue => change({ hasDue, reminderOffsets: hasDue ? form.reminderOffsets : [] })} />
+      <View style={styles.panelSoft}><SwitchRow title="마감 날짜 정하기" hint="정하지 않으면 날짜 없는 할 일로 남아요" value={form.hasDue} disabled={saving} onChange={hasDue => change({ hasDue, reminderOffsets: hasDue ? form.reminderOffsets : [] })} /></View>
       {form.hasDue && (
         <>
           <View style={styles.row}>
@@ -265,7 +265,7 @@ function TaskFormBody({ existing, reminders, initialTitle, initialDate }: { exis
         </>
       )}
       {loggedIn && (
-        <SwitchRow title="친구에게 공개" hint="제목 · 마감만 보여요" value={form.visibility === 'PUBLIC'} disabled={saving} onChange={on => change({ visibility: on ? 'PUBLIC' : 'PRIVATE' })} />
+        <View style={styles.panelSoft}><SwitchRow title="친구에게 공개" hint="제목 · 마감만 보여요" value={form.visibility === 'PUBLIC'} disabled={saving} onChange={on => change({ visibility: on ? 'PUBLIC' : 'PRIVATE' })} /></View>
       )}
       {!!message && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{message}</Text>}
       <Pressable
@@ -276,7 +276,7 @@ function TaskFormBody({ existing, reminders, initialTitle, initialDate }: { exis
         style={[styles.button, saving && styles.disabled]}>
         <Text style={styles.buttonText}>{saving ? '저장 중…' : '저장'}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={styles.secondary}><Text style={styles.secondaryText}>취소</Text></Pressable>
+      <Pressable accessibilityRole="button" disabled={saving} onPress={() => leaveScreen()} style={[styles.linkButton, { alignItems: 'center' }]}><Text style={styles.linkText}>취소</Text></Pressable>
     </View>
   );
 }

@@ -29,7 +29,7 @@ test('the tab bar marks the selected tab with a role, a state and a bar, and kee
   const bar = read('src/components/app-tab-bar.tsx');
   assert.match(bar, /accessibilityRole="tab"/);
   assert.match(bar, /accessibilityState=\{\{ selected: focused \}\}/);
-  assert.match(bar, /borderTopWidth: 4/);
+  assert.match(bar, /borderTopWidth: 3/);
   assert.match(bar, /minHeight: s\.touch/);
 });
 
