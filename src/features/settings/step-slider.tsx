@@ -49,12 +49,12 @@ export function StepSlider({ label, steps, value, onPreview, onChangeEnd, disabl
           onAccessibilityAction={event => { if (event.nativeEvent.actionName === 'increment') move(1); else if (event.nativeEvent.actionName === 'decrement') move(-1); }}
           onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
           style={{ minHeight: s.touch, justifyContent: 'center', opacity: disabled ? 0.5 : 1 }}>
-          <View pointerEvents="none" style={{ height: s.space(6), borderRadius: 3, backgroundColor: palette.line, justifyContent: 'center' }}>
-            <View style={{ position: 'absolute', left: 0, width: `${position * 100}%`, height: s.space(6), borderRadius: 3, backgroundColor: palette.primary }} />
+          <View pointerEvents="none" style={{ height: s.space(8), borderRadius: 4, backgroundColor: palette.line, justifyContent: 'center' }}>
+            <View style={{ position: 'absolute', left: 0, width: `${position * 100}%`, height: s.space(8), borderRadius: 4, backgroundColor: palette.primary }} />
             <View
               style={{
                 position: 'absolute', left: `${position * 100}%`, marginLeft: -thumb / 2, width: thumb, height: thumb, borderRadius: thumb / 2,
-                backgroundColor: palette.paper, borderWidth: 3, borderColor: palette.primary,
+                backgroundColor: palette.primaryFill, borderWidth: 3, borderColor: palette.primary,
               }}
             />
           </View>

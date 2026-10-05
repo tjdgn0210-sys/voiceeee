@@ -20,13 +20,13 @@ export function SettingPanel({ children }: PropsWithChildren) {
 }
 
 /** One line of a panel: title and hint on the left, a value and an arrow on the right (design `.settingRow`). */
-export function SettingRow({ title, hint, value, last, danger, accessibilityLabel, onPress }: {
-  title: string; hint?: string; value?: string; last?: boolean; danger?: boolean; accessibilityLabel?: string; onPress(): void;
+export function SettingRow({ title, hint, value, last, danger, link, accessibilityLabel, onPress }: {
+  title: string; hint?: string; value?: string; last?: boolean; danger?: boolean; link?: boolean; accessibilityLabel?: string; onPress(): void;
 }) {
   const styles = useExpenseStyles();
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={link ? 'link' : 'button'}
       accessibilityLabel={accessibilityLabel ?? `${title}${value ? ` ${value}` : ''}`}
       onPress={onPress}
       style={({ pressed }) => [styles.settingRow, last && styles.settingRowLast, pressed && styles.pressed]}>
@@ -62,5 +62,19 @@ export function SettingSwitch({ title, hint, value, last, disabled, onChange }: 
         <View style={styles.toggleKnob} />
       </View>
     </Pressable>
+  );
+}
+
+/** A line that only shows a value and cannot be pressed (design `.settingRowStatic`). The value drops below the title when there is no room. */
+export function SettingInfoRow({ title, hint, value, last }: { title: string; hint?: string; value?: string; last?: boolean }) {
+  const styles = useExpenseStyles();
+  return (
+    <View accessible accessibilityLabel={`${title}${value ? ` ${value}` : ''}`} style={[styles.settingRow, styles.settingRowStatic, last && styles.settingRowLast]}>
+      <View style={[styles.settingMain, styles.settingMainStatic]}>
+        <Text style={styles.settingTitle}>{title}</Text>
+        {!!hint && <Text style={styles.settingHint}>{hint}</Text>}
+      </View>
+      {!!value && <Text style={styles.settingValue}>{value}</Text>}
+    </View>
   );
 }

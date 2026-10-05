@@ -93,8 +93,8 @@ test('the screen needs two steps and the typed word; the button is red and disab
 test('"all notifications" off visibly overrides the rows below it, and every change is applied to the system', () => {
   const source = read('src/features/settings/notification-settings.tsx');
   assert.match(source, /const off = !settings\.allOn/);
-  for (const row of ['내 일정 알림', '잠금 화면에 제목 보이기']) assert.match(source.slice(source.indexOf(row)), /disabled=\{off\}/, row);
-  assert.match(source, /disabled=\{off\}\s*\n\s*onToggle/);
+  for (const row of ['내 일정 알림', '잠금 화면에 일정 제목 표시']) assert.match(source.slice(source.indexOf(row)), /disabled=\{off\}/, row);
+  assert.match(source, /disabled=\{off\}\s*\n\s*onChange/);
   assert.match(source, /await update\(patch\);\s*\n\s*const report = await sync\(\)/);
 });
 

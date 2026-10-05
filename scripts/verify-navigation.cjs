@@ -13,7 +13,7 @@ test('the four tab routes exist and the layout lists them in order: 홈, 캘린�
     assert.ok(fs.existsSync(path.join(root, 'src/app/(tabs)', `${name}.tsx`)), `${name}.tsx`);
   }
   const layout = read('src/app/(tabs)/_layout.tsx');
-  const titles = [...layout.matchAll(/<Tabs\.Screen name="(\w+)" options=\{\{ title: '([^']+)' \}\}/g)].map(match => [match[1], match[2]]);
+  const titles = [...layout.matchAll(/<Tabs\.Screen name="(\w+)" options=\{\{ title: '([^']+)'/g)].map(match => [match[1], match[2]]);
   assert.deepEqual(titles, [['index', '홈'], ['calendar', '캘린더'], ['expenses', '지출'], ['people', '사람']]);
   assert.match(layout, /headerRight/, 'settings button at the top right');
   assert.match(layout, /\/settings/);

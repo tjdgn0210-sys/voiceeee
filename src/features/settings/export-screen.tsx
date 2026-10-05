@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ExportKind, ExportOptions, ExportPeriod } from '../../application/export/export-model';
 import type { ExportPreview } from '../../application/export/export-service';
 import { PickerField } from '../calendar/picker-field';
-import { SegmentControl } from '../calendar/form-controls';
+import { PillGroup } from '../calendar/form-controls';
+import { ScreenIntro } from '../../components/screen-intro';
+import { exportFileName } from '../../application/export/export-model';
 import { usePlanner } from '../calendar/planner-context';
 import { addDays } from '../../application/planner/zoned-time';
 import { localDateIn } from '../../application/validator/local-date';
@@ -72,34 +74,40 @@ export function ExportScreen() {
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <Stack.Screen options={{ title: '엑셀로 내보내기' }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.card}>
+        <ScreenIntro eyebrow="EXPORT" title="엑셀로 내보내기" description="엑셀 파일(.xlsx)은 이 폰에서 만들어요. 로그인하지 않아도 쓸 수 있어요. 삭제한 기록은 들어가지 않아요." />
+
+        <View style={styles.field}>
           <Text style={styles.fieldLabel} accessibilityRole="header">기간</Text>
-          <SegmentControl<PeriodChoice> label="기간" options={PERIOD_OPTIONS} value={choice} onChange={value => { setChoice(value); setDone(null); setFailure(null); }} />
+          <PillGroup<PeriodChoice> label="기간" options={PERIOD_OPTIONS} value={choice} onChange={value => { setChoice(value); setDone(null); setFailure(null); }} />
           {choice === 'RANGE' && (
             <View style={styles.row}>
               <PickerField kind="date" label="시작하는 날" value={from} onChange={value => { setFrom(value); setDone(null); }} />
               <PickerField kind="date" label="끝나는 날" value={to} onChange={value => { setTo(value); setDone(null); }} />
             </View>
           )}
-          <Text style={styles.fieldLabel} accessibilityRole="header">내보낼 기록</Text>
-          <SegmentControl<ExportKind> label="내보낼 기록" options={KIND_OPTIONS} value={kind} onChange={value => { setKind(value); setDone(null); setFailure(null); }} />
+        </View>
+        <View style={styles.field}>
+          <Text style={styles.fieldLabel} accessibilityRole="header">종류</Text>
+          <PillGroup<ExportKind> label="내보낼 기록" options={KIND_OPTIONS} value={kind} onChange={value => { setKind(value); setDone(null); setFailure(null); }} />
         </View>
 
-        <View style={styles.card} accessibilityLiveRegion="polite">
+        <View style={styles.requestCard} accessibilityLiveRegion="polite">
+          <Text style={styles.fieldLabel}>만들어질 파일</Text>
+          <Text style={styles.text}>{exportFileName(planner.now(), planner.timezone())}</Text>
           {preview === null && !previewFailed && <ActivityIndicator accessibilityLabel="기록 개수 세는 중" />}
           {previewFailed && <Text accessibilityRole="alert" style={styles.error}>기록을 확인하지 못했어요. 기간을 바꿔 보세요.</Text>}
           {preview?.status === 'INVALID_PERIOD' && <Text accessibilityRole="alert" style={styles.error}>{preview.message}</Text>}
           {preview?.status === 'OK' && (
-            <Text style={styles.text}>
+            <Text style={styles.muted}>
               {kind !== 'EVENT' ? `지출 ${preview.expenseCount}건` : ''}{kind === 'BOTH' ? ' · ' : ''}{kind !== 'EXPENSE' ? `일정 ${preview.eventCount}건` : ''}
             </Text>
           )}
           {empty && <Text style={styles.muted}>선택한 기간에 내보낼 기록이 없어요. 기간이나 종류를 바꿔 보세요.</Text>}
-          <Text style={styles.hint}>파일은 이 기기에서만 만들어져요. 삭제한 기록은 들어가지 않고, 시간은 기기 시간대로 적혀요.</Text>
         </View>
+        <Text style={styles.muted}>시간은 이 기기의 시간대 기준이에요. =, +, -, @ 로 시작하는 칸은 수식으로 실행되지 않게 글자로 저장돼요.</Text>
 
         {!!failure && (
-          <View style={styles.card}>
+          <View style={styles.dangerCard}>
             <Text accessibilityRole="alert" style={styles.error}>{failure}</Text>
             <Pressable accessibilityRole="button" onPress={() => { setChoice('THIS_MONTH'); setFailure(null); }} style={styles.secondary}>
               <Text style={styles.secondaryText}>기간을 이번 달로 줄이기</Text>
@@ -107,8 +115,9 @@ export function ExportScreen() {
           </View>
         )}
         {!!done && (
-          <View accessibilityLiveRegion="polite" style={styles.okBanner}>
-            <Text style={styles.okBannerText}>{done}</Text>
+          <View accessibilityLiveRegion="polite" style={styles.requestCard}>
+            <Text style={styles.heading}>파일을 만들었어요</Text>
+            <Text style={styles.muted}>{done}</Text>
           </View>
         )}
 

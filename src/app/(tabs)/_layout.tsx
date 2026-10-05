@@ -37,10 +37,10 @@ export default function TabsLayout() {
         headerTitleStyle: { fontSize: s.font(15), fontWeight: '600', letterSpacing: 0.3, color: palette.ink },
         sceneStyle: { backgroundColor: palette.canvas },
       }}>
-      <Tabs.Screen name="index" options={{ title: '홈' }} />
+      <Tabs.Screen name="index" options={{ title: '홈', headerTitle: 'Voice Life Manager' }} />
       <Tabs.Screen name="calendar" options={{ title: '캘린더' }} />
       <Tabs.Screen name="expenses" options={{ title: '지출' }} />
-      <Tabs.Screen name="people" options={{ title: '사람' }} />
+      <Tabs.Screen name="people" options={{ title: '사람', headerTitle: '가족·친구' }} />
     </Tabs>
   );
 }

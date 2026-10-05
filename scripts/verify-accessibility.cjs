@@ -102,7 +102,7 @@ test('failures and warnings are written out and announced', () => {
 });
 
 test('lists with several parts read as one item with a full sentence', () => {
-  const rows = ['src/features/calendar/event-row.tsx', 'src/features/calendar/task-row.tsx', 'src/features/money/expenses-screen.tsx', 'src/features/settings/licenses-screen.tsx'];
+  const rows = ['src/features/calendar/event-row.tsx', 'src/features/calendar/task-row.tsx', 'src/features/money/expenses-screen.tsx', 'src/features/settings/setting-parts.tsx'];
   for (const name of rows) assert.match(fs.readFileSync(path.join(root, name), 'utf8'), /accessibilityLabel=\{`/, name);
 });
 

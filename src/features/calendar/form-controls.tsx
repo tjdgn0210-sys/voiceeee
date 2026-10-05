@@ -74,6 +74,33 @@ export function ChipGroup<T extends string | number>({ label, options, selected,
   );
 }
 
+/** Pills where exactly one is chosen (design `.pill`): a filled pill with an ink edge and a check mark for the chosen one. */
+export function PillGroup<T extends string | number>({ label, options, value, onChange, disabled }: {
+  label: string; options: readonly { value: T; label: string }[]; value: T; onChange(value: T): void; disabled?: boolean;
+}) {
+  const styles = useExpenseStyles();
+  return (
+    <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.chipRow}>
+      {options.map(option => {
+        const selected = option.value === value;
+        return (
+          <Pressable
+            key={String(option.value)}
+            accessibilityRole="radio"
+            accessibilityLabel={option.label}
+            accessibilityState={{ selected, disabled: !!disabled }}
+            aria-checked={selected}
+            disabled={disabled}
+            onPress={() => onChange(option.value)}
+            style={[styles.chip, selected && styles.chipSelected, disabled && styles.disabled]}>
+            <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{selected ? '✓ ' : ''}{option.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 /** A switch row. The knob sits on the right when on and on the left when off, and the state is exposed to screen readers. */
 export function SwitchRow({ title, hint, value, onChange, disabled }: {
   title: string; hint?: string; value: boolean; onChange(value: boolean): void; disabled?: boolean;
