@@ -47,8 +47,8 @@ export function ManualExpenseScreen() {
         <DraftStatus status={draft.status} onRetry={() => { void draft.retry().catch(() => {}); }} onDiscard={!draft.ready ? () => { void draft.clear().catch(() => {}); } : undefined} />
         {error && <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>{error}</Text>}
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: saving || !draft.ready, busy: saving }} disabled={saving || !draft.ready} style={[styles.button, saving && styles.disabled]} onPress={save}><Text style={styles.buttonText}>{saving ? '지출 저장 중…' : '지출 저장'}</Text></Pressable>
-        <Pressable accessibilityRole="button" disabled={saving} style={styles.secondary} onPress={() => leave(false)}><Text style={styles.secondaryText}>초안을 남기고 돌아가기</Text></Pressable>
-        <Pressable accessibilityRole="button" disabled={saving} style={styles.secondary} onPress={() => leave(true)}><Text style={styles.secondaryText}>입력 비우고 돌아가기</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={saving} style={[styles.linkButton, { alignItems: 'center' }]} onPress={() => leave(false)}><Text style={styles.linkText}>초안을 남기고 돌아가기</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={saving} style={[styles.linkButton, { alignItems: 'center' }]} onPress={() => leave(true)}><Text style={styles.linkText}>입력 비우고 돌아가기</Text></Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   </SafeAreaView>;

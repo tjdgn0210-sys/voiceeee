@@ -12,7 +12,7 @@ export function ExpenseDateFields({ date, time, disabled, onChange }: ExpenseDat
     if (Platform.OS === 'android' || event.type === 'dismissed') setPicker(null);
     if (event.type === 'set' && selected) onChange(localDateTimeFields(selected.toISOString()));
   }
-  return <View style={styles.field}><Text style={styles.text}>발생 날짜와 시간</Text><View style={styles.selectionRow}>
+  return <View style={styles.field}><Text style={styles.fieldLabel}>발생 날짜와 시간</Text><View style={styles.selectionRow}>
     <Pressable accessibilityRole="button" accessibilityLabel="날짜 선택" disabled={disabled} onPress={() => setPicker('date')} style={styles.selectionButton}><Text style={styles.selectionText}>{date}</Text></Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel="시간 선택" disabled={disabled} onPress={() => setPicker('time')} style={styles.selectionButton}><Text style={styles.selectionText}>{time}</Text></Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel="현재 시간으로 재설정" disabled={disabled} onPress={() => onChange(localDateTimeFields(new Date().toISOString()))} style={styles.nowButton}><Text style={styles.nowText}>지금</Text></Pressable>

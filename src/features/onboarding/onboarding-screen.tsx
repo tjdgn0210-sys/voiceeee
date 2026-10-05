@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScreenIntro } from '../../components/screen-intro';
 import { useExpenseStyles } from '../capture/use-expense-styles';
 import { useNotifications } from '../settings/notification-context';
 import { useSettings } from '../settings/settings-context';
@@ -40,39 +41,40 @@ export function OnboardingScreen() {
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={[styles.content, { flexGrow: 1, justifyContent: 'center' }]}>
         {step === 'WELCOME' && (
-          <View style={styles.softCard}>
-            <Text style={styles.eyebrow}>VOICE LIFE MANAGER</Text>
-            <Text style={styles.title} accessibilityRole="header">말하면 적어 드려요</Text>
-            <Text style={styles.text}>약속, 할 일, 쓴 돈을 말하거나 적으면 한곳에 모아 두고 알려 드려요.</Text>
-            <Text style={styles.muted}>기록은 이 기기에 저장돼요.</Text>
+          <View style={styles.formStack}>
+            <ScreenIntro eyebrow="WELCOME" title="말로 남기는 생활 기록" description="지출과 일정을 말하거나 입력하면 앱이 정리해 줘요." />
+            <View style={styles.card}>
+              <Text style={styles.text}>약속, 할 일, 쓴 돈을 말이나 글로 남겨요.</Text>
+              <Text style={styles.text}>기록은 먼저 이 폰에 저장돼요.</Text>
+            </View>
             <Pressable accessibilityRole="button" onPress={() => setStep('NOTIFICATIONS')} style={styles.button}>
               <Text style={styles.buttonText}>시작하기</Text>
             </Pressable>
           </View>
         )}
         {step === 'NOTIFICATIONS' && (
-          <View style={styles.softCard}>
-            <Text style={styles.title} accessibilityRole="header">알림이 필요해요</Text>
-            <Text style={styles.text}>일정 시간과 친구가 보낸 일정을 알려 드리려면 알림이 필요해요.</Text>
-            <Text style={styles.muted}>허용하지 않아도 앱은 쓸 수 있어요. 나중에 설정에서 바꿀 수 있어요.</Text>
+          <View style={styles.formStack}>
+            <ScreenIntro eyebrow="NOTIFICATIONS" title="알림을 켜 주세요" description="일정 시간과 친구가 보낸 일정을 알려 드리려면 알림이 필요해요." />
             {!!message && <Text accessibilityRole="alert" style={styles.error}>{message}</Text>}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ disabled: working, busy: working }}
-              disabled={working}
-              onPress={ask}
-              style={[styles.button, working && styles.disabled]}>
-              <Text style={styles.buttonText}>{working ? '확인 중…' : '계속'}</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" disabled={working} onPress={() => setStep('START')} style={styles.secondary}>
-              <Text style={styles.secondaryText}>나중에</Text>
-            </Pressable>
+            <View style={{ gap: 12 }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ disabled: working, busy: working }}
+                disabled={working}
+                onPress={ask}
+                style={[styles.button, working && styles.disabled]}>
+                <Text style={styles.buttonText}>{working ? '확인 중…' : '계속'}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" disabled={working} onPress={() => setStep('START')} style={styles.secondary}>
+                <Text style={styles.secondaryText}>나중에</Text>
+              </Pressable>
+              <Text style={styles.muted}>허용하지 않아도 앱은 쓸 수 있어요. 나중에 설정에서 바꿀 수 있어요.</Text>
+            </View>
           </View>
         )}
         {step === 'START' && (
-          <View style={styles.softCard}>
-            <Text style={styles.title} accessibilityRole="header">바로 시작해요</Text>
-            <Text style={styles.text}>지금은 로그인 없이 시작해요. 기록은 이 기기에만 저장돼요.</Text>
+          <View style={styles.formStack}>
+            <ScreenIntro eyebrow="START" title="바로 시작해요" description="지금은 로그인 없이 시작해요. 기록은 이 기기에만 저장돼요." />
             {!!message && <Text accessibilityRole="alert" style={styles.error}>{message}</Text>}
             <Pressable
               accessibilityRole="button"

@@ -108,7 +108,7 @@ test('lists with several parts read as one item with a full sentence', () => {
 
 test('headings are marked so a screen reader can jump between sections', () => {
   const screens = ['src/features/settings/settings-screen.tsx', 'src/features/calendar/event-detail-screen.tsx', 'src/features/money/expenses-screen.tsx', 'src/features/settings/export-screen.tsx', 'src/features/onboarding/onboarding-screen.tsx'];
-  for (const name of screens) assert.match(fs.readFileSync(path.join(root, name), 'utf8'), /accessibilityRole="header"/, name);
+  for (const name of screens) assert.match(fs.readFileSync(path.join(root, name), 'utf8'), /accessibilityRole="header"|<ScreenIntro/, name);
 });
 
 test('no fixed text height or width that would clip large text', () => {
